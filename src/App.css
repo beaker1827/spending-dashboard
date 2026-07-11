@@ -55,7 +55,7 @@ html, body { margin: 0; padding: 0; background: var(--bg); }
 }
 
 .ledger-masthead__title::before {
-  content: '◆';
+  content: 'â—†';
   color: var(--eucalypt);
   font-size: 15px;
 }
@@ -188,7 +188,6 @@ html, body { margin: 0; padding: 0; background: var(--bg); }
   position: absolute;
   top: -3px;
   bottom: -3px;
-  right: -1px;
   width: 2px;
   background: var(--ochre);
   border-radius: 1px;
