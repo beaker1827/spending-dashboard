@@ -136,7 +136,7 @@ html, body { margin: 0; padding: 0; background: var(--bg); }
 
 .ledger-list__head {
   display: grid;
-  grid-template-columns: minmax(160px, 1.4fr) 2fr auto auto;
+  grid-template-columns: minmax(160px, 1.4fr) 2fr 110px 110px;
   gap: 14px;
   padding: 12px 20px;
   font-size: 11px;
@@ -147,12 +147,12 @@ html, body { margin: 0; padding: 0; background: var(--bg); }
   border-bottom: 1px solid var(--border);
 }
 
-.ledger-list__head-num { text-align: right; min-width: 100px; white-space: nowrap; }
+.ledger-list__head-num { text-align: right; white-space: nowrap; }
 
 .ledger-row {
   width: 100%;
   display: grid;
-  grid-template-columns: minmax(160px, 1.4fr) 2fr auto auto;
+  grid-template-columns: minmax(160px, 1.4fr) 2fr 110px 110px;
   align-items: center;
   gap: 14px;
   padding: 10px 20px;
@@ -167,7 +167,7 @@ html, body { margin: 0; padding: 0; background: var(--bg); }
 
 .ledger-list--simple .ledger-list__head,
 .ledger-row--simple {
-  grid-template-columns: minmax(160px, 1.4fr) 2fr auto;
+  grid-template-columns: minmax(160px, 1.4fr) 2fr 110px;
 }
 
 .ledger-row__name { font-size: 13px; color: var(--ink); font-weight: 500; }
