@@ -94,6 +94,7 @@ export default function App() {
           <div className="ledger-list__title">Categories with a target</div>
           <div className="ledger-list__head">
             <span>Category</span>
+            <span></span>
             <span className="ledger-list__head-num">Year to date</span>
             <span className="ledger-list__head-num">Yearly budget</span>
           </div>
@@ -107,6 +108,7 @@ export default function App() {
           <div className="ledger-list__title">All other categories</div>
           <div className="ledger-list__head">
             <span>Category</span>
+            <span></span>
             <span className="ledger-list__head-num">Year to date</span>
           </div>
           {untargeted.map((r) => renderRow(r, untargetedMax, false))}
@@ -133,7 +135,7 @@ export default function App() {
           {targetPct != null && (
             <span className="ledger-row__target" style={{ left: `${targetPct}%` }}>
               <span className="ledger-row__target-tip">
-               Expected to date ({MONTHS[monthsElapsed - 1]}): {money(r.ytdTarget)}
+                Expected to date ({MONTHS[monthsElapsed - 1]}): {money(r.ytdTarget)}
               </span>
             </span>
           )}
