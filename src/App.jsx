@@ -37,7 +37,7 @@ export default function App() {
 
   const targeted = rows.filter((r) => r.target != null);
   const untargeted = rows.filter((r) => r.target == null);
-  const untargetedMax = untargeted.length ? Math.max(...untargeted.map((r) => r.ytd)) : 0;
+  const untargetedScaleMax = 2500;
   const targetedMax = targeted.length ? Math.max(...targeted.map((r) => Math.max(r.ytd, r.ytdTarget))) : 0;
 
   if (error) {
@@ -108,10 +108,13 @@ export default function App() {
           <div className="ledger-list__title">All other categories</div>
           <div className="ledger-list__head">
             <span>Category</span>
-            <span></span>
+            <span className="ledger-list__head-axis">
+              <span>$0</span>
+              <span>{money(untargetedScaleMax)}</span>
+            </span>
             <span className="ledger-list__head-num">Year to date</span>
           </div>
-          {untargeted.map((r) => renderRow(r, untargetedMax, false))}
+          {untargeted.map((r) => renderRow(r, untargetedScaleMax, false))}
         </div>
 
         <div className="ledger-legend">
