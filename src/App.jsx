@@ -95,7 +95,7 @@ export default function App() {
           <div className="ledger-list__head">
             <span>Category</span>
             <span className="ledger-list__head-num">Year to date</span>
-            <span className="ledger-list__head-num">Yearly target</span>
+            <span className="ledger-list__head-num">Yearly budget</span>
           </div>
           {targeted.length === 0 && (
             <p className="ledger-list__empty">No categories have an Annual Target set in column N yet.</p>
@@ -133,7 +133,7 @@ export default function App() {
           {targetPct != null && (
             <span className="ledger-row__target" style={{ left: `${targetPct}%` }}>
               <span className="ledger-row__target-tip">
-                Target to date ({MONTHS[monthsElapsed - 1]}): {money(r.ytdTarget)}
+               Expected to date ({MONTHS[monthsElapsed - 1]}): {money(r.ytdTarget)}
               </span>
             </span>
           )}
