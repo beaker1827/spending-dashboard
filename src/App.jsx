@@ -103,31 +103,30 @@ export default function App() {
           {targeted.map((r) => renderRow(r, targetedMax))}
         </div>
 
-        <div className="ledger-list ledger-list--spaced">
+        <div className="ledger-list ledger-list--spaced ledger-list--simple">
           <div className="ledger-list__title">All other categories</div>
           <div className="ledger-list__head">
             <span>Category</span>
             <span className="ledger-list__head-num">Year to date</span>
-            <span className="ledger-list__head-num">Yearly expected</span>
           </div>
-          {untargeted.map((r) => renderRow(r, untargetedMax))}
+          {untargeted.map((r) => renderRow(r, untargetedMax, false))}
         </div>
 
         <div className="ledger-legend">
           <span className="ledger-legend__item"><i className="ledger-legend__swatch ledger-legend__swatch--over" /> over target to date</span>
           <span className="ledger-legend__item"><i className="ledger-legend__swatch ledger-legend__swatch--under" /> under target to date</span>
           <span className="ledger-legend__item"><i className="ledger-legend__swatch ledger-legend__swatch--neutral" /> no target set — bar shows relative size vs. your biggest untargeted category</span>
-          <span className="ledger-legend__item">Yearly expected = this month's rate × 12</span>
+          <span className="ledger-legend__item">Yearly target column = your Annual Target from column N</span>
         </div>
       </section>
     </div>
   );
 
-  function renderRow(r, trackBasis) {
+  function renderRow(r, trackBasis, showExpected = true) {
     const barPct = trackBasis ? Math.min((r.ytd / trackBasis) * 100, 100) : 0;
     const targetPct = r.ytdTarget != null && trackBasis ? Math.min((r.ytdTarget / trackBasis) * 100, 100) : null;
     return (
-      <div key={r.name} className={`ledger-row ledger-row--${r.status}`}>
+      <div key={r.name} className={`ledger-row ledger-row--${r.status} ${showExpected ? '' : 'ledger-row--simple'}`}>
         <span className="ledger-row__name">{r.name}</span>
         <span className="ledger-row__bartrack">
           <span className="ledger-row__bar" style={{ width: `${barPct}%` }} />
@@ -140,7 +139,7 @@ export default function App() {
           )}
         </span>
         <span className="ledger-row__amount">{money(r.ytd)}</span>
-        <span className="ledger-row__amount ledger-row__amount--muted">{money(r.yearlyExpected)}</span>
+        {showExpected && <span className="ledger-row__amount ledger-row__amount--muted">{money(r.yearlyExpected)}</span>}
       </div>
     );
   }
