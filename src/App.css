@@ -55,7 +55,7 @@ html, body { margin: 0; padding: 0; background: var(--bg); }
 }
 
 .ledger-masthead__title::before {
-  content: 'â—†';
+  content: '◆';
   color: var(--eucalypt);
   font-size: 15px;
 }
@@ -164,6 +164,11 @@ html, body { margin: 0; padding: 0; background: var(--bg); }
 }
 
 .ledger-row:last-child { border-bottom: none; }
+
+.ledger-list--simple .ledger-list__head,
+.ledger-row--simple {
+  grid-template-columns: minmax(160px, 1.4fr) 2fr auto;
+}
 
 .ledger-row__name { font-size: 13px; color: var(--ink); font-weight: 500; }
 
