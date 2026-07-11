@@ -191,11 +191,45 @@ html, body { margin: 0; padding: 0; background: var(--bg); }
 
 .ledger-row__target {
   position: absolute;
-  top: -3px;
-  bottom: -3px;
+  top: -6px;
+  bottom: -6px;
+  width: 12px;
+  margin-left: -6px;
+  cursor: help;
+}
+
+.ledger-row__target::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 3px;
+  bottom: 3px;
   width: 2px;
   background: var(--ochre);
   border-radius: 1px;
+  transform: translateX(-50%);
+}
+
+.ledger-row__target-tip {
+  position: absolute;
+  bottom: 130%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--ink);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 5px 9px;
+  border-radius: 5px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.12s ease;
+  z-index: 5;
+}
+
+.ledger-row__target:hover .ledger-row__target-tip {
+  opacity: 1;
 }
 
 .ledger-row__amount {
