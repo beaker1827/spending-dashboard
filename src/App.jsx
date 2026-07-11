@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { fetchSpendingData } from './sheets';
-import { fyMonthsElapsed } from './config';
+import { MONTHS, fyMonthsElapsed } from './config';
 import './App.css';
 
 const money = (n) =>
@@ -131,11 +131,11 @@ export default function App() {
         <span className="ledger-row__bartrack">
           <span className="ledger-row__bar" style={{ width: `${barPct}%` }} />
           {targetPct != null && (
-            <span
-              className="ledger-row__target"
-              style={{ left: `${targetPct}%` }}
-              title={`Target to date: ${money(r.ytdTarget)}`}
-            />
+            <span className="ledger-row__target" style={{ left: `${targetPct}%` }}>
+              <span className="ledger-row__target-tip">
+                Target to date ({MONTHS[monthsElapsed - 1]}): {money(r.ytdTarget)}
+              </span>
+            </span>
           )}
         </span>
         <span className="ledger-row__amount">{money(r.ytd)}</span>
