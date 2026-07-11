@@ -38,6 +38,7 @@ export default function App() {
   const targeted = rows.filter((r) => r.target != null);
   const untargeted = rows.filter((r) => r.target == null);
   const untargetedMax = untargeted.length ? Math.max(...untargeted.map((r) => r.ytd)) : 0;
+  const targetedMax = targeted.length ? Math.max(...targeted.map((r) => Math.max(r.ytd, r.ytdTarget))) : 0;
 
   if (error) {
     return (
@@ -99,7 +100,7 @@ export default function App() {
           {targeted.length === 0 && (
             <p className="ledger-list__empty">No categories have an Annual Target set in column N yet.</p>
           )}
-          {targeted.map((r) => renderRow(r, r.ytdTarget))}
+          {targeted.map((r) => renderRow(r, targetedMax))}
         </div>
 
         <div className="ledger-list ledger-list--spaced">
@@ -124,13 +125,18 @@ export default function App() {
 
   function renderRow(r, trackBasis) {
     const barPct = trackBasis ? Math.min((r.ytd / trackBasis) * 100, 100) : 0;
+    const targetPct = r.ytdTarget != null && trackBasis ? Math.min((r.ytdTarget / trackBasis) * 100, 100) : null;
     return (
       <div key={r.name} className={`ledger-row ledger-row--${r.status}`}>
         <span className="ledger-row__name">{r.name}</span>
         <span className="ledger-row__bartrack">
           <span className="ledger-row__bar" style={{ width: `${barPct}%` }} />
-          {r.ytdTarget != null && (
-            <span className="ledger-row__target" title={`Target to date: ${money(r.ytdTarget)}`} />
+          {targetPct != null && (
+            <span
+              className="ledger-row__target"
+              style={{ left: `${targetPct}%` }}
+              title={`Target to date: ${money(r.ytdTarget)}`}
+            />
           )}
         </span>
         <span className="ledger-row__amount">{money(r.ytd)}</span>
