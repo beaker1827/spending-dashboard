@@ -149,6 +149,17 @@ html, body { margin: 0; padding: 0; background: var(--bg); }
 
 .ledger-list__head-num { text-align: right; white-space: nowrap; }
 
+.ledger-list__head-axis {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ink-soft);
+}
+
 .ledger-row {
   width: 100%;
   display: grid;
