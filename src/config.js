@@ -24,7 +24,6 @@ export const GROCERY_TOTAL_COMPONENTS = [
   'Woolies',
   'Coles',
   'Asian',
-  'Rafa meat',
 ];
 
 // The category list, in display order. Must match the text in column A of
