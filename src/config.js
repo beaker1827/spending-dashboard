@@ -13,9 +13,19 @@ export const SHEET_RANGE = `A1:N80`;
 // Financial year months, in sheet column order.
 export const MONTHS = ['Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'June'];
 
-// Rows under "Groceries" that should roll up into a single Groceries total
-// rather than appearing as their own category.
-export const GROCERY_SUBITEMS = ['IGA', 'Aldi', 'Woolies', 'Coles', 'Asian', 'Rafa meat'];
+// The individual grocery lines that roll up into "Groceries (Total)" —
+// each can have its own target, and the total is computed by summing these,
+// not read from its own row (no transactions get allocated directly to it).
+export const GROCERY_TOTAL_NAME = 'Groceries (Total)';
+export const GROCERY_TOTAL_COMPONENTS = [
+  'Groceries (general, butcher, bakery)',
+  'IGA',
+  'Aldi',
+  'Woolies',
+  'Coles',
+  'Asian',
+  'Rafa meat',
+];
 
 // The category list, in display order. Must match the text in column A of
 // the sheet exactly. Unknown rows in the sheet are ignored; categories listed
@@ -26,7 +36,8 @@ export const CATEGORIES = [
   'RMG loan repayment',
   'Splurge',
   'Smile',
-  'Groceries',
+  ...GROCERY_TOTAL_COMPONENTS,
+  GROCERY_TOTAL_NAME,
   'Fuel',
   'Electricity',
   'Water',
