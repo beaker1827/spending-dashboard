@@ -1,4 +1,4 @@
-import { SHEET_ID, SHEET_TAB, SHEET_RANGE, API_KEY, CATEGORIES, GROCERY_SUBITEMS, MONTHS } from './config';
+import { SHEET_ID, SHEET_TAB, SHEET_RANGE, API_KEY, CATEGORIES, GROCERY_TOTAL_NAME, GROCERY_TOTAL_COMPONENTS, MONTHS } from './config';
 
 function parseMoney(cell) {
   if (cell === undefined || cell === null || cell === '') return 0;
@@ -29,23 +29,22 @@ export async function fetchSpendingData() {
 
   for (const row of rows) {
     const label = (row[0] || '').toString().trim();
-    if (!label) continue;
+    if (!label || !byName[label]) continue;
 
     const monthly = MONTHS.map((_, i) => parseMoney(row[1 + i]));
     const targetCell = row[13];
     const target = targetCell !== undefined && String(targetCell).trim() !== '' ? parseMoney(targetCell) : null;
 
-    if (GROCERY_SUBITEMS.includes(label)) {
-      const g = byName['Groceries'];
-      g.monthly = g.monthly.map((v, i) => v + monthly[i]);
-      continue;
-    }
-
-    if (byName[label]) {
-      byName[label].monthly = monthly;
-      if (target !== null) byName[label].target = target;
-    }
+    byName[label].monthly = monthly;
+    if (target !== null) byName[label].target = target;
   }
+
+  // Groceries (Total) isn't allocated transactions directly — it's the sum
+  // of the individual grocery lines above it. Its own target (if any is set
+  // on that row in the sheet) is left as-is from the parsing above.
+  byName[GROCERY_TOTAL_NAME].monthly = MONTHS.map((_, i) =>
+    GROCERY_TOTAL_COMPONENTS.reduce((total, name) => total + (byName[name] ? byName[name].monthly[i] : 0), 0)
+  );
 
   return CATEGORIES.map((name) => byName[name]);
 }
