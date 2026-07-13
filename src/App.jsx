@@ -8,11 +8,15 @@ const money = (n) =>
 
 export default function App() {
   const [categories, setCategories] = useState(null);
+  const [income, setIncome] = useState(null);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchSpendingData()
-      .then((data) => setCategories(data))
+      .then(({ categories, income }) => {
+        setCategories(categories);
+        setIncome(income);
+      })
       .catch((e) => setError(e.message));
   }, []);
 
@@ -32,6 +36,7 @@ export default function App() {
   const totalYtd = useMemo(() => rows.reduce((s, r) => s + r.ytd, 0), [rows]);
   const monthlyAvg = monthsElapsed ? totalYtd / monthsElapsed : 0;
   const runRate = useMemo(() => rows.reduce((s, r) => s + r.yearlyExpected, 0), [rows]);
+  const incomeYtd = useMemo(() => (income ? sum(income) : 0), [income]);
 
   const targeted = rows.filter((r) => r.target != null);
   const untargeted = rows.filter((r) => r.target == null);
@@ -69,6 +74,10 @@ export default function App() {
           <h1>FY2026/27 Spending</h1>
         </div>
         <div className="ledger-stamp">
+          <div className="ledger-stamp__item ledger-stamp__item--highlight">
+            <span className="ledger-stamp__label">Income to date</span>
+            <span className="ledger-stamp__value">{money(incomeYtd)}</span>
+          </div>
           <div className="ledger-stamp__item">
             <span className="ledger-stamp__label">Spent to date</span>
             <span className="ledger-stamp__value">{money(totalYtd)}</span>
