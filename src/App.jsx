@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { fetchSpendingData } from './sheets';
-import { MONTHS, fyMonthsElapsed, OVERALL_ANNUAL_TARGET } from './config';
+import { MONTHS, fyMonthsElapsed, OVERALL_ANNUAL_TARGET, GROCERY_TOTAL_NAME } from './config';
 import './App.css';
 
 const money = (n) =>
@@ -33,9 +33,15 @@ export default function App() {
     });
   }, [categories, monthsElapsed]);
 
-  const totalYtd = useMemo(() => rows.reduce((s, r) => s + r.ytd, 0), [rows]);
+  // Groceries (Total) is a derived row — its YTD and budget are already the
+  // sum of the individual grocery lines above it — so it's excluded here to
+  // avoid double-counting those dollars in the headline totals. It's still
+  // shown as its own row in the table below for reference.
+  const aggregatable = useMemo(() => rows.filter((r) => r.name !== GROCERY_TOTAL_NAME), [rows]);
+
+  const totalYtd = useMemo(() => aggregatable.reduce((s, r) => s + r.ytd, 0), [aggregatable]);
   const monthlyAvg = monthsElapsed ? totalYtd / monthsElapsed : 0;
-  const runRate = useMemo(() => rows.reduce((s, r) => s + r.yearlyExpected, 0), [rows]);
+  const runRate = useMemo(() => aggregatable.reduce((s, r) => s + r.yearlyExpected, 0), [aggregatable]);
   const incomeYtd = useMemo(() => (income ? sum(income) : 0), [income]);
   const targetVariance = runRate - OVERALL_ANNUAL_TARGET;
   const isOverTarget = targetVariance > 0;
