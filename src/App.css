@@ -69,7 +69,7 @@ html, body { margin: 0; padding: 0; background: var(--bg); }
 
 .ledger-stamp {
   display: grid;
-  grid-template-columns: repeat(3, minmax(160px, 1fr));
+  grid-template-columns: repeat(4, minmax(140px, 1fr));
   gap: 14px;
 }
 
@@ -82,7 +82,7 @@ html, body { margin: 0; padding: 0; background: var(--bg); }
   padding: 14px 16px;
 }
 
-.ledger-stamp__item:first-child { border-color: var(--eucalypt); }
+.ledger-stamp__item--highlight { border-color: var(--eucalypt); }
 
 .ledger-stamp__label {
   font-size: 11px;
