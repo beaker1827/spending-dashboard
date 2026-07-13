@@ -69,8 +69,12 @@ html, body { margin: 0; padding: 0; background: var(--bg); }
 
 .ledger-stamp {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 14px;
+}
+
+@media (max-width: 640px) {
+  .ledger-stamp { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 .ledger-stamp__item {
@@ -80,6 +84,7 @@ html, body { margin: 0; padding: 0; background: var(--bg); }
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 14px 16px;
+  min-width: 0;
 }
 
 .ledger-stamp__item--highlight { border-color: var(--eucalypt); }
@@ -90,16 +95,18 @@ html, body { margin: 0; padding: 0; background: var(--bg); }
   letter-spacing: 0.06em;
   color: var(--ink-soft);
   font-weight: 500;
+  white-space: nowrap;
 }
 
 .ledger-stamp__value {
   font-weight: 700;
-  font-size: 26px;
+  font-size: 22px;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-
-.ledger-stamp__value--sub { font-size: 18px; font-weight: 600; color: var(--ink); }
 
 .ledger-stamp__value--over { color: var(--gum-red); }
 .ledger-stamp__value--under { color: var(--eucalypt); }
