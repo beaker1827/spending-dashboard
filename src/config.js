@@ -26,6 +26,11 @@ export const GROCERY_TOTAL_COMPONENTS = [
   'Asian',
 ];
 
+// The label (column A) for the row that holds total monthly income —
+// salaries and other credits. Read separately from the spending categories,
+// shown as its own stat box rather than in either table.
+export const INCOME_ROW_NAME = 'Income';
+
 // The category list, in display order. Must match the text in column A of
 // the sheet exactly. Unknown rows in the sheet are ignored; categories listed
 // here but missing from the sheet simply show as $0.
