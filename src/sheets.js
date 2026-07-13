@@ -1,4 +1,4 @@
-import { SHEET_ID, SHEET_TAB, SHEET_RANGE, API_KEY, CATEGORIES, GROCERY_TOTAL_NAME, GROCERY_TOTAL_COMPONENTS, MONTHS } from './config';
+import { SHEET_ID, SHEET_TAB, SHEET_RANGE, API_KEY, CATEGORIES, GROCERY_TOTAL_NAME, GROCERY_TOTAL_COMPONENTS, INCOME_ROW_NAME, MONTHS } from './config';
 
 function parseMoney(cell) {
   if (cell === undefined || cell === null || cell === '') return 0;
@@ -27,9 +27,18 @@ export async function fetchSpendingData() {
     byName[name] = { name, monthly: new Array(MONTHS.length).fill(0), target: null };
   }
 
+  let incomeMonthly = new Array(MONTHS.length).fill(0);
+
   for (const row of rows) {
     const label = (row[0] || '').toString().trim();
-    if (!label || !byName[label]) continue;
+    if (!label) continue;
+
+    if (label === INCOME_ROW_NAME) {
+      incomeMonthly = MONTHS.map((_, i) => parseMoney(row[1 + i]));
+      continue;
+    }
+
+    if (!byName[label]) continue;
 
     const monthly = MONTHS.map((_, i) => parseMoney(row[1 + i]));
     const targetCell = row[13];
@@ -46,5 +55,8 @@ export async function fetchSpendingData() {
     GROCERY_TOTAL_COMPONENTS.reduce((total, name) => total + (byName[name] ? byName[name].monthly[i] : 0), 0)
   );
 
-  return CATEGORIES.map((name) => byName[name]);
+  return {
+    categories: CATEGORIES.map((name) => byName[name]),
+    income: incomeMonthly,
+  };
 }
