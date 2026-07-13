@@ -20,15 +20,13 @@ export default function App() {
 
   const rows = useMemo(() => {
     if (!categories) return [];
-    return categories
-      .map((c) => {
-        const ytd = sum(c.monthly);
-        const ytdTarget = c.target != null ? (c.target / 12) * monthsElapsed : null;
-        const status = ytdTarget == null ? 'neutral' : ytd > ytdTarget ? 'over' : 'under';
-        const yearlyExpected = c.target != null ? c.target : monthsElapsed ? (ytd / monthsElapsed) * 12 : 0;
-        return { ...c, ytd, ytdTarget, status, yearlyExpected };
-      })
-      .sort((a, b) => b.ytd - a.ytd);
+    return categories.map((c) => {
+      const ytd = sum(c.monthly);
+      const ytdTarget = c.target != null ? (c.target / 12) * monthsElapsed : null;
+      const status = ytdTarget == null ? 'neutral' : ytd > ytdTarget ? 'over' : 'under';
+      const yearlyExpected = c.target != null ? c.target : monthsElapsed ? (ytd / monthsElapsed) * 12 : 0;
+      return { ...c, ytd, ytdTarget, status, yearlyExpected };
+    });
   }, [categories, monthsElapsed]);
 
   const totalYtd = useMemo(() => rows.reduce((s, r) => s + r.ytd, 0), [rows]);
