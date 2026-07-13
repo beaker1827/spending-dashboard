@@ -92,19 +92,19 @@ export default function App() {
           </div>
           <div className="ledger-stamp__item">
             <span className="ledger-stamp__label">Monthly average</span>
-            <span className="ledger-stamp__value ledger-stamp__value--sub">{money(monthlyAvg)}</span>
+            <span className="ledger-stamp__value">{money(monthlyAvg)}</span>
           </div>
           <div className="ledger-stamp__item">
             <span className="ledger-stamp__label">Projected annual</span>
-            <span className="ledger-stamp__value ledger-stamp__value--sub">{money(runRate)}</span>
+            <span className="ledger-stamp__value">{money(runRate)}</span>
           </div>
           <div className="ledger-stamp__item">
             <span className="ledger-stamp__label">Yearly target spend</span>
-            <span className="ledger-stamp__value ledger-stamp__value--sub">{money(OVERALL_ANNUAL_TARGET)}</span>
+            <span className="ledger-stamp__value">{money(OVERALL_ANNUAL_TARGET)}</span>
           </div>
           <div className="ledger-stamp__item">
             <span className="ledger-stamp__label">Vs. target</span>
-            <span className={`ledger-stamp__value ledger-stamp__value--sub ${isOverTarget ? 'ledger-stamp__value--over' : 'ledger-stamp__value--under'}`}>
+            <span className={`ledger-stamp__value ${isOverTarget ? 'ledger-stamp__value--over' : 'ledger-stamp__value--under'}`}>
               {money(Math.abs(targetVariance))} {isOverTarget ? 'over' : 'under'}
             </span>
           </div>
