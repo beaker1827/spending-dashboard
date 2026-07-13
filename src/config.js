@@ -26,6 +26,11 @@ export const GROCERY_TOTAL_COMPONENTS = [
   'Asian',
 ];
 
+// Overall household annual spending target — a single top-level figure,
+// separate from the per-category targets in column N. Edit this number
+// directly whenever your target changes.
+export const OVERALL_ANNUAL_TARGET = 170000;
+
 // The label (column A) for the row that holds total monthly income —
 // salaries and other credits. Read separately from the spending categories,
 // shown as its own stat box rather than in either table.
