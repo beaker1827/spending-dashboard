@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { fetchSpendingData } from './sheets';
-import { MONTHS, fyMonthsElapsed } from './config';
+import { MONTHS, fyMonthsElapsed, OVERALL_ANNUAL_TARGET } from './config';
 import './App.css';
 
 const money = (n) =>
@@ -37,6 +37,8 @@ export default function App() {
   const monthlyAvg = monthsElapsed ? totalYtd / monthsElapsed : 0;
   const runRate = useMemo(() => rows.reduce((s, r) => s + r.yearlyExpected, 0), [rows]);
   const incomeYtd = useMemo(() => (income ? sum(income) : 0), [income]);
+  const targetVariance = runRate - OVERALL_ANNUAL_TARGET;
+  const isOverTarget = targetVariance > 0;
 
   const targeted = rows.filter((r) => r.target != null);
   const untargeted = rows.filter((r) => r.target == null);
@@ -89,6 +91,16 @@ export default function App() {
           <div className="ledger-stamp__item">
             <span className="ledger-stamp__label">Projected annual</span>
             <span className="ledger-stamp__value ledger-stamp__value--sub">{money(runRate)}</span>
+          </div>
+          <div className="ledger-stamp__item">
+            <span className="ledger-stamp__label">Yearly target spend</span>
+            <span className="ledger-stamp__value ledger-stamp__value--sub">{money(OVERALL_ANNUAL_TARGET)}</span>
+          </div>
+          <div className="ledger-stamp__item">
+            <span className="ledger-stamp__label">Vs. target</span>
+            <span className={`ledger-stamp__value ledger-stamp__value--sub ${isOverTarget ? 'ledger-stamp__value--over' : 'ledger-stamp__value--under'}`}>
+              {money(Math.abs(targetVariance))} {isOverTarget ? 'over' : 'under'}
+            </span>
           </div>
         </div>
         <p className="ledger-caption">
