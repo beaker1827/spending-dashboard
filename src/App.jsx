@@ -9,13 +9,17 @@ const money = (n) =>
 export default function App() {
   const [categories, setCategories] = useState(null);
   const [income, setIncome] = useState(null);
+  const [taxPayments, setTaxPayments] = useState(null);
+  const [dividendIncome, setDividendIncome] = useState(null);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchSpendingData()
-      .then(({ categories, income }) => {
+      .then(({ categories, income, taxPayments, dividendIncome }) => {
         setCategories(categories);
         setIncome(income);
+        setTaxPayments(taxPayments);
+        setDividendIncome(dividendIncome);
       })
       .catch((e) => setError(e.message));
   }, []);
@@ -43,6 +47,8 @@ export default function App() {
   const monthlyAvg = monthsElapsed ? totalYtd / monthsElapsed : 0;
   const runRate = useMemo(() => aggregatable.reduce((s, r) => s + r.yearlyExpected, 0), [aggregatable]);
   const incomeYtd = useMemo(() => (income ? sum(income) : 0), [income]);
+  const taxPaymentsYtd = useMemo(() => (taxPayments ? sum(taxPayments) : 0), [taxPayments]);
+  const dividendIncomeYtd = useMemo(() => (dividendIncome ? sum(dividendIncome) : 0), [dividendIncome]);
   const targetVariance = runRate - OVERALL_ANNUAL_TARGET;
   const isOverTarget = targetVariance > 0;
 
@@ -148,6 +154,18 @@ export default function App() {
           <span className="ledger-legend__item"><i className="ledger-legend__swatch ledger-legend__swatch--neutral" /> no target set — bar shows relative size vs. your biggest untargeted category</span>
           <span className="ledger-legend__item">Yearly target column = your Annual Target from column N</span>
         </div>
+
+        <div className="ledger-footer-stats">
+          <div className="ledger-stamp__item">
+            <span className="ledger-stamp__label">Tax payments to date</span>
+            <span className="ledger-stamp__value">{money(taxPaymentsYtd)}</span>
+          </div>
+          <div className="ledger-stamp__item ledger-stamp__item--highlight">
+            <span className="ledger-stamp__label">Dividend income to date</span>
+            <span className="ledger-stamp__value">{money(dividendIncomeYtd)}</span>
+          </div>
+        </div>
+        <p className="ledger-caption">Tracked separately — excluded from Spent to date, Projected Annual, and Vs. target above.</p>
       </section>
     </div>
   );
