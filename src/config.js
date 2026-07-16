@@ -29,12 +29,17 @@ export const GROCERY_TOTAL_COMPONENTS = [
 // Overall household annual spending target — a single top-level figure,
 // separate from the per-category targets in column N. Edit this number
 // directly whenever your target changes.
-export const OVERALL_ANNUAL_TARGET = 192363;
+export const OVERALL_ANNUAL_TARGET = 170000;
 
 // The label (column A) for the row that holds total monthly income —
 // salaries and other credits. Read separately from the spending categories,
 // shown as its own stat box rather than in either table.
 export const INCOME_ROW_NAME = 'Income';
+
+// Tracked separately from the spending categories, shown as their own boxes
+// rather than in the category tables — and excluded from Projected Annual.
+export const TAX_PAYMENTS_ROW_NAME = 'Tax payments';
+export const DIVIDEND_INCOME_ROW_NAME = 'Dividend Income';
 
 // The category list, in display order. Must match the text in column A of
 // the sheet exactly. Unknown rows in the sheet are ignored; categories listed
@@ -78,8 +83,7 @@ export const CATEGORIES = [
   'Personal care & beauty',
   'Studio Daisie',
   'Pets',
- 'Kids sport/activities (other) and iphone, birthdays, random',
-  'Tax payments',
+  'Kids sport/activities (other) and iphone, birthdays, random',
 ];
 
 // Returns how many months of FY2026/27 (Jul->Jun) have elapsed, counting the
