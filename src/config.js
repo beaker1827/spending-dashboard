@@ -29,7 +29,7 @@ export const GROCERY_TOTAL_COMPONENTS = [
 // Overall household annual spending target — a single top-level figure,
 // separate from the per-category targets in column N. Edit this number
 // directly whenever your target changes.
-export const OVERALL_ANNUAL_TARGET = 170000;
+export const OVERALL_ANNUAL_TARGET = 192363;
 
 // The label (column A) for the row that holds total monthly income —
 // salaries and other credits. Read separately from the spending categories,
