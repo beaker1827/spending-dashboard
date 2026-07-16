@@ -266,6 +266,17 @@ html, body { margin: 0; padding: 0; background: var(--bg); }
   color: var(--ink-soft);
 }
 
+.ledger-footer-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 20px;
+}
+
+@media (max-width: 640px) {
+  .ledger-footer-stats { grid-template-columns: 1fr; }
+}
+
 .ledger-legend {
   display: flex;
   flex-wrap: wrap;
