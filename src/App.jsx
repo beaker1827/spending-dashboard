@@ -30,7 +30,17 @@ export default function App() {
     if (!categories) return [];
     return categories.map((c) => {
       const ytd = sum(c.monthly);
-      const ytdTarget = c.target != null ? (c.target / 12) * monthsElapsed : null;
+      let ytdTarget = null;
+      if (c.target != null) {
+        if (c.targetMonth != null) {
+          // Lump-sum annual category: $0 until its due month arrives, then
+          // jumps to the full target (current month index = monthsElapsed - 1).
+          ytdTarget = monthsElapsed - 1 >= c.targetMonth ? c.target : 0;
+        } else {
+          // Default: pro-rate evenly across the months elapsed so far.
+          ytdTarget = (c.target / 12) * monthsElapsed;
+        }
+      }
       const status = ytdTarget == null ? 'neutral' : ytd > ytdTarget ? 'over' : 'under';
       const yearlyExpected = c.target != null ? c.target : monthsElapsed ? (ytd / monthsElapsed) * 12 : 0;
       return { ...c, ytd, ytdTarget, status, yearlyExpected };
