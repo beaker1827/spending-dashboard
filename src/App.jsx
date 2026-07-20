@@ -32,10 +32,14 @@ export default function App() {
       const ytd = sum(c.monthly);
       let ytdTarget = null;
       if (c.target != null) {
-        if (c.targetMonth != null) {
-          // Lump-sum annual category: $0 until its due month arrives, then
-          // jumps to the full target (current month index = monthsElapsed - 1).
-          ytdTarget = monthsElapsed - 1 >= c.targetMonth ? c.target : 0;
+        if (c.targetMonths && c.targetMonths.length > 0) {
+          // Lump-sum or instalment category: the target splits evenly across
+          // however many due months are listed, and steps up by one
+          // instalment each time one of those months arrives.
+          const instalment = c.target / c.targetMonths.length;
+          const currentMonthIndex = monthsElapsed - 1;
+          const elapsedInstalments = c.targetMonths.filter((m) => currentMonthIndex >= m).length;
+          ytdTarget = elapsedInstalments * instalment;
         } else {
           // Default: pro-rate evenly across the months elapsed so far.
           ytdTarget = (c.target / 12) * monthsElapsed;
