@@ -21,10 +21,10 @@ export async function fetchSpendingData() {
   const json = await res.json();
   const rows = json.values || [];
 
-  // Build a lookup: category name -> { monthly: number[12], target: number|null, targetMonth: number|null }
+  // Build a lookup: category name -> { monthly: number[12], target: number|null, targetMonths: number[] }
   const byName = {};
   for (const name of CATEGORIES) {
-    byName[name] = { name, monthly: new Array(MONTHS.length).fill(0), target: null, targetMonth: null };
+    byName[name] = { name, monthly: new Array(MONTHS.length).fill(0), target: null, targetMonths: [] };
   }
 
   let incomeMonthly = new Array(MONTHS.length).fill(0);
@@ -54,13 +54,19 @@ export async function fetchSpendingData() {
     const targetCell = row[13];
     const target = targetCell !== undefined && String(targetCell).trim() !== '' ? parseMoney(targetCell) : null;
     const targetMonthCell = (row[14] || '').toString().trim();
-    const targetMonthIndex = targetMonthCell
-      ? MONTHS.findIndex((m) => m.toLowerCase() === targetMonthCell.toLowerCase())
-      : -1;
+    const targetMonths = targetMonthCell
+      ? targetMonthCell
+          .split(',')
+          .map((s) => s.trim())
+          .filter(Boolean)
+          .map((s) => MONTHS.findIndex((m) => m.toLowerCase() === s.toLowerCase()))
+          .filter((i) => i !== -1)
+          .sort((a, b) => a - b)
+      : [];
 
     byName[label].monthly = monthly;
     if (target !== null) byName[label].target = target;
-    if (targetMonthIndex !== -1) byName[label].targetMonth = targetMonthIndex;
+    if (targetMonths.length > 0) byName[label].targetMonths = targetMonths;
   }
 
   // Groceries (Total) isn't allocated transactions directly — it's the sum
