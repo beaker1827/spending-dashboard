@@ -5,10 +5,17 @@ export const SHEET_ID = import.meta.env.VITE_SHEET_ID || '14ITWuWHTl99kE0QlehSu4
 export const SHEET_TAB = import.meta.env.VITE_SHEET_TAB || '2026/27 spending';
 export const API_KEY = import.meta.env.VITE_GOOGLE_SHEETS_API_KEY || '';
 
-// Range covers category names (A), 12 months Jul-Jun (B:M) and an optional
-// "Annual Target" column (N) that you can fill in for any category, any time —
-// leave it blank for categories you're not tracking a target for.
-export const SHEET_RANGE = `A1:N80`;
+// Range covers category names (A), 12 months Jul-Jun (B:M), an optional
+// "Annual Target" column (N), and an optional "Target Month" column (O).
+// Leave N blank for categories you're not tracking a target for. Leave O
+// blank for anything spread roughly evenly across the year (weekly direct
+// debits, groceries, etc) — the expected-to-date line pro-rates evenly.
+// Fill in O with a month abbreviation (Jul, Aug, Sept, Oct, Nov, Dec, Jan,
+// Feb, Mar, Apr, May, June) for a category that's a single annual lump sum
+// due in a known month (car insurance, rego, school fees) — the
+// expected-to-date line will then sit at $0 until that month, then jump to
+// the full target, instead of creeping up all year.
+export const SHEET_RANGE = `A1:O80`;
 
 // Financial year months, in sheet column order.
 export const MONTHS = ['Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'June'];
