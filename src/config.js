@@ -12,9 +12,10 @@ export const API_KEY = import.meta.env.VITE_GOOGLE_SHEETS_API_KEY || '';
 // blank for anything billed roughly once a month (health insurance, etc) —
 // the expected-to-date line steps up in whole-month increments.
 // Fill in O with the word "Weekly" for a category paid via regular weekly
-// direct debit (school fees, etc) — the expected-to-date line moves
-// smoothly day by day instead of jumping in monthly steps, so it tracks
-// actual weekly spending much more closely.
+// direct debit (school fees, etc) — the expected-to-date line steps up
+// once per week (52 even instalments across the year) instead of jumping
+// in whole-month steps, so it tracks actual weekly spending far more
+// closely without being unrealistically smooth.
 // Fill in O with ONE month abbreviation (Jul, Aug, Sept, Oct, Nov, Dec, Jan,
 // Feb, Mar, Apr, May, June — full names like "October" also work) for a
 // category that's a single annual lump sum due in a known month (car
@@ -112,8 +113,7 @@ export function fyMonthsElapsed(date = new Date()) {
 }
 
 // Returns how many days into FY2026/27 (starting 1 July) the given date is,
-// counting today as day 1. Used for smooth day-by-day pro-rating of
-// "Weekly" cadence categories, instead of the coarser whole-month steps.
+// counting today as day 1. Used to compute weeks elapsed below.
 export function fyDaysElapsed(date = new Date()) {
   const y = date.getFullYear();
   const fyStartYear = date.getMonth() >= 6 ? y : y - 1; // FY starts 1 July
@@ -129,4 +129,13 @@ export function fyTotalDays(date = new Date()) {
   const fyStart = new Date(fyStartYear, 6, 1);
   const fyEnd = new Date(fyStartYear + 1, 6, 1);
   return Math.round((fyEnd - fyStart) / 86400000);
+}
+
+// Returns how many whole weeks of FY2026/27 have elapsed (week 1 = days
+// 1-7, week 2 = days 8-14, etc), capped at 52. Used to step the
+// expected-to-date line for "Weekly" cadence categories once per week
+// rather than continuously day by day.
+export function fyWeeksElapsed(date = new Date()) {
+  const days = fyDaysElapsed(date);
+  return Math.min(Math.floor((days - 1) / 7) + 1, 52);
 }
