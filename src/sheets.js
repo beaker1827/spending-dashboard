@@ -21,10 +21,10 @@ export async function fetchSpendingData() {
   const json = await res.json();
   const rows = json.values || [];
 
-  // Build a lookup: category name -> { monthly: number[12], target: number|null }
+  // Build a lookup: category name -> { monthly: number[12], target: number|null, targetMonth: number|null }
   const byName = {};
   for (const name of CATEGORIES) {
-    byName[name] = { name, monthly: new Array(MONTHS.length).fill(0), target: null };
+    byName[name] = { name, monthly: new Array(MONTHS.length).fill(0), target: null, targetMonth: null };
   }
 
   let incomeMonthly = new Array(MONTHS.length).fill(0);
@@ -53,9 +53,14 @@ export async function fetchSpendingData() {
     const monthly = MONTHS.map((_, i) => parseMoney(row[1 + i]));
     const targetCell = row[13];
     const target = targetCell !== undefined && String(targetCell).trim() !== '' ? parseMoney(targetCell) : null;
+    const targetMonthCell = (row[14] || '').toString().trim();
+    const targetMonthIndex = targetMonthCell
+      ? MONTHS.findIndex((m) => m.toLowerCase() === targetMonthCell.toLowerCase())
+      : -1;
 
     byName[label].monthly = monthly;
     if (target !== null) byName[label].target = target;
+    if (targetMonthIndex !== -1) byName[label].targetMonth = targetMonthIndex;
   }
 
   // Groceries (Total) isn't allocated transactions directly — it's the sum
