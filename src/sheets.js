@@ -57,9 +57,9 @@ export async function fetchSpendingData() {
     const targetMonths = targetMonthCell
       ? targetMonthCell
           .split(',')
-          .map((s) => s.trim())
+          .map((s) => s.trim().slice(0, 3).toLowerCase())
           .filter(Boolean)
-          .map((s) => MONTHS.findIndex((m) => m.toLowerCase() === s.toLowerCase()))
+          .map((s) => MONTHS.findIndex((m) => m.slice(0, 3).toLowerCase() === s))
           .filter((i) => i !== -1)
           .sort((a, b) => a - b)
       : [];
