@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { fetchSpendingData } from './sheets';
-import { MONTHS, fyMonthsElapsed, fyDaysElapsed, fyTotalDays, OVERALL_ANNUAL_TARGET, GROCERY_TOTAL_NAME } from './config';
+import { MONTHS, fyMonthsElapsed, fyWeeksElapsed, OVERALL_ANNUAL_TARGET, GROCERY_TOTAL_NAME } from './config';
 import './App.css';
 
 const money = (n) =>
@@ -25,7 +25,7 @@ export default function App() {
   }, []);
 
   const monthsElapsed = fyMonthsElapsed();
-  const dayFraction = Math.min(fyDaysElapsed() / fyTotalDays(), 1);
+  const weeksElapsed = fyWeeksElapsed();
 
   const rows = useMemo(() => {
     if (!categories) return [];
@@ -42,9 +42,9 @@ export default function App() {
           const elapsedInstalments = c.targetMonths.filter((m) => currentMonthIndex >= m).length;
           ytdTarget = elapsedInstalments * instalment;
         } else if (c.weeklyCadence) {
-          // Weekly direct debit: track smoothly day by day through the
-          // financial year, rather than jumping in whole-month steps.
-          ytdTarget = c.target * dayFraction;
+          // Weekly direct debit: step up once per week (52 even instalments
+          // across the year) rather than jumping in whole-month steps.
+          ytdTarget = (c.target / 52) * weeksElapsed;
         } else {
           // Default: pro-rate evenly across the whole months elapsed so far.
           ytdTarget = (c.target / 12) * monthsElapsed;
@@ -54,7 +54,7 @@ export default function App() {
       const yearlyExpected = c.target != null ? c.target : monthsElapsed ? (ytd / monthsElapsed) * 12 : 0;
       return { ...c, ytd, ytdTarget, status, yearlyExpected };
     });
-  }, [categories, monthsElapsed, dayFraction]);
+  }, [categories, monthsElapsed, weeksElapsed]);
 
   // Groceries (Total) is a derived row — its YTD and budget are already the
   // sum of the individual grocery lines above it — so it's excluded here to
