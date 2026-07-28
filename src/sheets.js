@@ -21,10 +21,10 @@ export async function fetchSpendingData() {
   const json = await res.json();
   const rows = json.values || [];
 
-  // Build a lookup: category name -> { monthly: number[12], target: number|null, targetMonths: number[], weeklyCadence: boolean }
+  // Build a lookup: category name -> { monthly: number[12], target: number|null, targetMonths: number[], weeklyCadence: boolean, fixed: boolean }
   const byName = {};
   for (const name of CATEGORIES) {
-    byName[name] = { name, monthly: new Array(MONTHS.length).fill(0), target: null, targetMonths: [], weeklyCadence: false };
+    byName[name] = { name, monthly: new Array(MONTHS.length).fill(0), target: null, targetMonths: [], weeklyCadence: false, fixed: false };
   }
 
   let incomeMonthly = new Array(MONTHS.length).fill(0);
@@ -64,11 +64,13 @@ export async function fetchSpendingData() {
           .filter((i) => i !== -1)
           .sort((a, b) => a - b)
       : [];
+    const isFixed = (row[15] || '').toString().trim() !== '';
 
     byName[label].monthly = monthly;
     if (target !== null) byName[label].target = target;
     if (targetMonths.length > 0) byName[label].targetMonths = targetMonths;
     byName[label].weeklyCadence = isWeekly;
+    byName[label].fixed = isFixed;
   }
 
   // Groceries (Total) isn't allocated transactions directly — it's the sum
