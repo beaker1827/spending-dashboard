@@ -52,7 +52,28 @@ export default function App() {
       }
       const status = ytdTarget == null ? 'neutral' : ytd > ytdTarget ? 'over' : 'under';
       const yearlyExpected = c.target != null ? c.target : monthsElapsed ? (ytd / monthsElapsed) * 12 : 0;
-      return { ...c, ytd, ytdTarget, status, yearlyExpected };
+
+      // Yearly Tracking: a per-category forecast of full-year spend.
+      // Fixed-cost categories (column P) always track exactly to their
+      // Anticipated Costs, since the amount is already known. Everything
+      // else extrapolates from actual spend so far, using the same
+      // cadence-aware "elapsed fraction" already computed above via
+      // ytdTarget — so a weekly category is extrapolated against weeks
+      // elapsed, a quarterly one against instalments elapsed, etc, not a
+      // flat month-count average.
+      let yearlyTracking = null;
+      let trackingVariance = null;
+      if (c.target != null) {
+        if (c.fixed) {
+          yearlyTracking = c.target;
+        } else {
+          const elapsedFraction = c.target > 0 ? ytdTarget / c.target : 0;
+          yearlyTracking = elapsedFraction > 0 ? ytd / elapsedFraction : c.target;
+        }
+        trackingVariance = yearlyTracking - c.target;
+      }
+
+      return { ...c, ytd, ytdTarget, status, yearlyExpected, yearlyTracking, trackingVariance };
     });
   }, [categories, monthsElapsed, weeksElapsed]);
 
@@ -64,7 +85,13 @@ export default function App() {
 
   const totalYtd = useMemo(() => aggregatable.reduce((s, r) => s + r.ytd, 0), [aggregatable]);
   const monthlyAvg = monthsElapsed ? totalYtd / monthsElapsed : 0;
-  const runRate = useMemo(() => aggregatable.reduce((s, r) => s + r.yearlyExpected, 0), [aggregatable]);
+  // Projected Annual now uses each category's Yearly Tracking forecast when
+  // one exists (targeted categories), falling back to the simple run-rate
+  // projection for untargeted ones — rather than just echoing budget figures.
+  const runRate = useMemo(
+    () => aggregatable.reduce((s, r) => s + (r.target != null ? r.yearlyTracking : r.yearlyExpected), 0),
+    [aggregatable]
+  );
   const incomeYtd = useMemo(() => (income ? sum(income) : 0), [income]);
   const taxPaymentsYtd = useMemo(() => (taxPayments ? sum(taxPayments) : 0), [taxPayments]);
   const dividendIncomeYtd = useMemo(() => (dividendIncome ? sum(dividendIncome) : 0), [dividendIncome]);
@@ -146,12 +173,14 @@ export default function App() {
             <span>Category</span>
             <span></span>
             <span className="ledger-list__head-num">Year to date</span>
-            <span className="ledger-list__head-num">Yearly budget</span>
+            <span className="ledger-list__head-num">Anticipated Costs</span>
+            <span className="ledger-list__head-num">Yearly Tracking</span>
+            <span className="ledger-list__head-num">Vs. Anticipated</span>
           </div>
           {targeted.length === 0 && (
             <p className="ledger-list__empty">No categories have an Annual Target set in column N yet.</p>
           )}
-          {targeted.map((r) => renderRow(r, targetedMax))}
+          {targeted.map((r) => renderRow(r, targetedMax, true, true))}
         </div>
 
         <div className="ledger-list ledger-list--spaced ledger-list--simple">
@@ -164,14 +193,14 @@ export default function App() {
             </span>
             <span className="ledger-list__head-num">Year to date</span>
           </div>
-          {untargeted.map((r) => renderRow(r, untargetedScaleMax, false))}
+          {untargeted.map((r) => renderRow(r, untargetedScaleMax, false, false))}
         </div>
 
         <div className="ledger-legend">
           <span className="ledger-legend__item"><i className="ledger-legend__swatch ledger-legend__swatch--over" /> over target to date</span>
           <span className="ledger-legend__item"><i className="ledger-legend__swatch ledger-legend__swatch--under" /> under target to date</span>
           <span className="ledger-legend__item"><i className="ledger-legend__swatch ledger-legend__swatch--neutral" /> no target set — bar shows relative size vs. your biggest untargeted category</span>
-          <span className="ledger-legend__item">Yearly target column = your Annual Target from column N</span>
+          <span className="ledger-legend__item">Anticipated Costs = your Annual Target from column N · Yearly Tracking = forecast full-year spend (fixed costs in column P track exactly to Anticipated)</span>
         </div>
 
         <div className="ledger-footer-stats">
@@ -189,11 +218,16 @@ export default function App() {
     </div>
   );
 
-  function renderRow(r, trackBasis, showExpected = true) {
+  function renderRow(r, trackBasis, showExpected = true, showTracking = false) {
     const barPct = trackBasis ? Math.min((r.ytd / trackBasis) * 100, 100) : 0;
     const targetPct = r.ytdTarget != null && trackBasis ? Math.min((r.ytdTarget / trackBasis) * 100, 100) : null;
+    const varianceOver = showTracking && r.trackingVariance != null && r.trackingVariance > 0;
+    const varianceSign = showTracking && r.trackingVariance != null ? (r.trackingVariance > 0 ? '+' : r.trackingVariance < 0 ? '−' : '') : '';
     return (
-      <div key={r.name} className={`ledger-row ledger-row--${r.status} ${showExpected ? '' : 'ledger-row--simple'}`}>
+      <div
+        key={r.name}
+        className={`ledger-row ledger-row--${r.status} ${showTracking ? '' : 'ledger-row--simple'}`}
+      >
         <span className="ledger-row__name">{r.name}</span>
         <span className="ledger-row__bartrack">
           <span className="ledger-row__bar" style={{ width: `${barPct}%` }} />
@@ -207,6 +241,13 @@ export default function App() {
         </span>
         <span className="ledger-row__amount">{money(r.ytd)}</span>
         {showExpected && <span className="ledger-row__amount ledger-row__amount--muted">{money(r.yearlyExpected)}</span>}
+        {showTracking && <span className="ledger-row__amount">{money(r.yearlyTracking)}</span>}
+        {showTracking && (
+          <span className={`ledger-row__amount ${varianceOver ? 'ledger-row__amount--over' : 'ledger-row__amount--under'}`}>
+            {varianceSign}
+            {money(Math.abs(r.trackingVariance))}
+          </span>
+        )}
       </div>
     );
   }
