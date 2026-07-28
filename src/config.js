@@ -6,8 +6,8 @@ export const SHEET_TAB = import.meta.env.VITE_SHEET_TAB || '2026/27 spending';
 export const API_KEY = import.meta.env.VITE_GOOGLE_SHEETS_API_KEY || '';
 
 // Range covers category names (A), 12 months Jul-Jun (B:M), an optional
-// "Annual Target" column (N), and an optional "Target Month(s) / Cadence"
-// column (O).
+// "Annual Target" column (N), an optional "Target Month(s) / Cadence"
+// column (O), and an optional "Fixed Cost" column (P).
 // Leave N blank for categories you're not tracking a target for. Leave O
 // blank for anything billed roughly once a month (health insurance, etc) —
 // the expected-to-date line steps up in whole-month increments.
@@ -26,7 +26,12 @@ export const API_KEY = import.meta.env.VITE_GOOGLE_SHEETS_API_KEY || '';
 // council rates) — the annual target splits evenly across however many
 // months you list, and the expected-to-date line steps up by one instalment
 // each time one of those months arrives.
-export const SHEET_RANGE = `A1:O80`;
+// Put ANYTHING in P (e.g. "Yes") for a category whose annual cost is fixed
+// and already known — its Yearly Tracking forecast will simply equal its
+// Anticipated Costs, rather than being extrapolated from spend-so-far.
+// Leave P blank for anything variable, where the forecast should follow
+// actual spending.
+export const SHEET_RANGE = `A1:P80`;
 
 // Financial year months, in sheet column order.
 export const MONTHS = ['Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'June'];
@@ -68,8 +73,6 @@ export const CATEGORIES = [
   'RMG loan repayment',
   'Splurge',
   'Smile',
-  'School fees',
-  'Rafa',
   ...GROCERY_TOTAL_COMPONENTS,
   GROCERY_TOTAL_NAME,
   'Fuel',
@@ -78,8 +81,12 @@ export const CATEGORIES = [
   'Health insurance',
   'Income Insurance etc',
   'Health care',
+  'Rafa',
+  'School fees',
   'Extra school costs (uniforms etc)',
   'Internet and phone and music',
+  'Car insurance',
+  'CoGB Rates',
   'Home and contents (bike) insurance',
   'Home maintenance',
   'Pool',
@@ -88,10 +95,8 @@ export const CATEGORIES = [
   'Swimming',
   'Netball and Dance',
   'Random other',
-  'Basketball, Cycling, Trainerroad',
+  'Basketball and Trainerroad',
   'Bec nursing rego/union',
-  'Car insurance',
-  'CoGB Rates',
   'Additional travel (over and above smile)',
   'Dining out and takeaway',
   'Car servicing, parking etc (extra over rego)',
