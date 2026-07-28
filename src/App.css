@@ -35,7 +35,7 @@ html, body { margin: 0; padding: 0; background: var(--bg); }
 .ledger-error code { background: var(--panel); border: 1px solid var(--border); padding: 2px 6px; border-radius: 4px; }
 
 .ledger-masthead {
-  max-width: 1120px;
+  max-width: 1200px;
   margin: 0 auto 20px;
   background: var(--panel);
   border: 1px solid var(--border);
@@ -118,7 +118,7 @@ html, body { margin: 0; padding: 0; background: var(--bg); }
 }
 
 .ledger-body {
-  max-width: 1120px;
+  max-width: 1200px;
   margin: 0 auto;
 }
 
@@ -146,8 +146,8 @@ html, body { margin: 0; padding: 0; background: var(--bg); }
 
 .ledger-list__head {
   display: grid;
-  grid-template-columns: minmax(160px, 1.4fr) 2fr 110px 110px;
-  gap: 14px;
+  grid-template-columns: minmax(140px, 1.1fr) 1.3fr 90px 100px 100px 100px;
+  gap: 10px;
   padding: 12px 20px;
   font-size: 11px;
   text-transform: uppercase;
@@ -173,9 +173,9 @@ html, body { margin: 0; padding: 0; background: var(--bg); }
 .ledger-row {
   width: 100%;
   display: grid;
-  grid-template-columns: minmax(160px, 1.4fr) 2fr 110px 110px;
+  grid-template-columns: minmax(140px, 1.1fr) 1.3fr 90px 100px 100px 100px;
   align-items: center;
-  gap: 14px;
+  gap: 10px;
   padding: 10px 20px;
   border: none;
   border-bottom: 1px solid var(--border);
@@ -189,6 +189,7 @@ html, body { margin: 0; padding: 0; background: var(--bg); }
 .ledger-list--simple .ledger-list__head,
 .ledger-row--simple {
   grid-template-columns: minmax(160px, 1.4fr) 2fr 110px;
+  gap: 14px;
 }
 
 .ledger-row__name { font-size: 13px; color: var(--ink); font-weight: 500; }
@@ -257,14 +258,20 @@ html, body { margin: 0; padding: 0; background: var(--bg); }
   font-size: 13px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
-  min-width: 100px;
+  min-width: 0;
   text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .ledger-row__amount--muted {
   font-weight: 500;
   color: var(--ink-soft);
 }
+
+.ledger-row__amount--over { color: var(--gum-red); }
+.ledger-row__amount--under { color: var(--eucalypt); }
 
 .ledger-footer-stats {
   display: grid;
