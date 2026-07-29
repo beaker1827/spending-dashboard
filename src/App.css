@@ -148,16 +148,22 @@ html, body { margin: 0; padding: 0; background: var(--bg); }
   display: grid;
   grid-template-columns: minmax(140px, 1.1fr) 1.3fr 90px 100px 100px 100px;
   gap: 10px;
-  padding: 12px 20px;
+  padding: 12px 20px 10px;
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   font-weight: 500;
   color: var(--ink-soft);
   border-bottom: 1px solid var(--border);
+  align-items: end;
 }
 
-.ledger-list__head-num { text-align: right; white-space: nowrap; }
+.ledger-list__head-num {
+  text-align: right;
+  white-space: normal;
+  line-height: 1.25;
+  word-break: break-word;
+}
 
 .ledger-list__head-axis {
   display: flex;
