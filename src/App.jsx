@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
+import { Fragment, useEffect, useMemo, useState } from 'react';
 import { fetchSpendingData } from './sheets';
-import { MONTHS, fyMonthsElapsed, fyWeeksElapsed, OVERALL_ANNUAL_TARGET, GROCERY_TOTAL_NAME } from './config';
+import { MONTHS, fyMonthsElapsed, fyWeeksElapsed, OVERALL_ANNUAL_TARGET, GROCERY_TOTAL_NAME, GROCERY_TOTAL_COMPONENTS } from './config';
 import './App.css';
 
 const money = (n) =>
@@ -34,33 +34,19 @@ export default function App() {
       let ytdTarget = null;
       if (c.target != null) {
         if (c.targetMonths && c.targetMonths.length > 0) {
-          // Lump-sum or instalment category: the target splits evenly across
-          // however many due months are listed, and steps up by one
-          // instalment each time one of those months arrives.
           const instalment = c.target / c.targetMonths.length;
           const currentMonthIndex = monthsElapsed - 1;
           const elapsedInstalments = c.targetMonths.filter((m) => currentMonthIndex >= m).length;
           ytdTarget = elapsedInstalments * instalment;
         } else if (c.weeklyCadence) {
-          // Weekly direct debit: step up once per week (52 even instalments
-          // across the year) rather than jumping in whole-month steps.
           ytdTarget = (c.target / 52) * weeksElapsed;
         } else {
-          // Default: pro-rate evenly across the whole months elapsed so far.
           ytdTarget = (c.target / 12) * monthsElapsed;
         }
       }
       const status = ytdTarget == null ? 'neutral' : ytd > ytdTarget ? 'over' : 'under';
       const yearlyExpected = c.target != null ? c.target : monthsElapsed ? (ytd / monthsElapsed) * 12 : 0;
 
-      // Yearly Tracking: a per-category forecast of full-year spend.
-      // Fixed-cost categories (column P) always track exactly to their
-      // Anticipated Costs, since the amount is already known. Everything
-      // else extrapolates from actual spend so far, using the same
-      // cadence-aware "elapsed fraction" already computed above via
-      // ytdTarget — so a weekly category is extrapolated against weeks
-      // elapsed, a quarterly one against instalments elapsed, etc, not a
-      // flat month-count average.
       let yearlyTracking = null;
       let trackingVariance = null;
       if (c.target != null) {
@@ -77,17 +63,10 @@ export default function App() {
     });
   }, [categories, monthsElapsed, weeksElapsed]);
 
-  // Groceries (Total) is a derived row — its YTD and budget are already the
-  // sum of the individual grocery lines above it — so it's excluded here to
-  // avoid double-counting those dollars in the headline totals. It's still
-  // shown as its own row in the table below for reference.
   const aggregatable = useMemo(() => rows.filter((r) => r.name !== GROCERY_TOTAL_NAME), [rows]);
 
   const totalYtd = useMemo(() => aggregatable.reduce((s, r) => s + r.ytd, 0), [aggregatable]);
   const monthlyAvg = monthsElapsed ? totalYtd / monthsElapsed : 0;
-  // Projected Annual now uses each category's Yearly Tracking forecast when
-  // one exists (targeted categories), falling back to the simple run-rate
-  // projection for untargeted ones — rather than just echoing budget figures.
   const runRate = useMemo(
     () => aggregatable.reduce((s, r) => s + (r.target != null ? r.yearlyTracking : r.yearlyExpected), 0),
     [aggregatable]
@@ -98,10 +77,32 @@ export default function App() {
   const targetVariance = runRate - OVERALL_ANNUAL_TARGET;
   const isOverTarget = targetVariance > 0;
 
+  const [sortMode, setSortMode] = useState('sheet');
+  const [filterMode, setFilterMode] = useState('all');
+  const [groceriesExpanded, setGroceriesExpanded] = useState(false);
+
   const targeted = rows.filter((r) => r.target != null);
   const untargeted = rows.filter((r) => r.target == null);
   const untargetedScaleMax = 2500;
   const targetedMax = targeted.length ? Math.max(...targeted.map((r) => Math.max(r.ytd, r.ytdTarget))) : 0;
+
+  // The individual grocery lines are folded under "Groceries (Total)" and
+  // only shown when expanded, so the main list isn't dominated by 6-7
+  // grocery rows. They're excluded from sort/filter — those apply to the
+  // main visible list only.
+  const groceryComponentRows = targeted.filter((r) => GROCERY_TOTAL_COMPONENTS.includes(r.name));
+  let targetedMain = targeted.filter((r) => !GROCERY_TOTAL_COMPONENTS.includes(r.name));
+
+  if (filterMode === 'over') targetedMain = targetedMain.filter((r) => r.status === 'over');
+  if (filterMode === 'under') targetedMain = targetedMain.filter((r) => r.status === 'under');
+
+  if (sortMode === 'amount') {
+    targetedMain = [...targetedMain].sort((a, b) => b.ytd - a.ytd);
+  } else if (sortMode === 'status') {
+    const rank = (s) => (s === 'over' ? 0 : s === 'under' ? 1 : 2);
+    targetedMain = [...targetedMain].sort((a, b) => rank(a.status) - rank(b.status));
+  }
+  // sortMode === 'sheet' — no re-sort, keeps the order already in `rows`.
 
   if (error) {
     return (
@@ -168,7 +169,21 @@ export default function App() {
 
       <section className="ledger-body">
         <div className="ledger-list">
-          <div className="ledger-list__title">Categories with a target</div>
+          <div className="ledger-list__title-row">
+            <div className="ledger-list__title">Categories with a target</div>
+            <div className="ledger-list__controls">
+              <div className="ledger-toggle-group">
+                <button className={sortMode === 'sheet' ? 'is-active' : ''} onClick={() => setSortMode('sheet')}>Sheet order</button>
+                <button className={sortMode === 'amount' ? 'is-active' : ''} onClick={() => setSortMode('amount')}>Amount</button>
+                <button className={sortMode === 'status' ? 'is-active' : ''} onClick={() => setSortMode('status')}>Status</button>
+              </div>
+              <div className="ledger-toggle-group">
+                <button className={filterMode === 'all' ? 'is-active' : ''} onClick={() => setFilterMode('all')}>All</button>
+                <button className={filterMode === 'over' ? 'is-active' : ''} onClick={() => setFilterMode('over')}>Over</button>
+                <button className={filterMode === 'under' ? 'is-active' : ''} onClick={() => setFilterMode('under')}>Under</button>
+              </div>
+            </div>
+          </div>
           <div className="ledger-list__head">
             <span>Category</span>
             <span></span>
@@ -180,7 +195,16 @@ export default function App() {
           {targeted.length === 0 && (
             <p className="ledger-list__empty">No categories have an Annual Target set in column N yet.</p>
           )}
-          {targeted.map((r) => renderRow(r, targetedMax, true, true))}
+          {targeted.length > 0 && targetedMain.length === 0 && (
+            <p className="ledger-list__empty">No categories match this filter.</p>
+          )}
+          {targetedMain.map((r) => (
+            <Fragment key={r.name}>
+              {renderRow(r, targetedMax, true, true, r.name === GROCERY_TOTAL_NAME)}
+              {r.name === GROCERY_TOTAL_NAME && groceriesExpanded &&
+                groceryComponentRows.map((g) => renderRow(g, targetedMax, true, true, false, true))}
+            </Fragment>
+          ))}
         </div>
 
         <div className="ledger-list ledger-list--spaced ledger-list--simple">
@@ -218,7 +242,7 @@ export default function App() {
     </div>
   );
 
-  function renderRow(r, trackBasis, showExpected = true, showTracking = false) {
+  function renderRow(r, trackBasis, showExpected = true, showTracking = false, isGroceryToggle = false, isSubRow = false) {
     const barPct = trackBasis ? Math.min((r.ytd / trackBasis) * 100, 100) : 0;
     const targetPct = r.ytdTarget != null && trackBasis ? Math.min((r.ytdTarget / trackBasis) * 100, 100) : null;
     const varianceOver = showTracking && r.trackingVariance != null && r.trackingVariance > 0;
@@ -226,9 +250,21 @@ export default function App() {
     return (
       <div
         key={r.name}
-        className={`ledger-row ledger-row--${r.status} ${showTracking ? '' : 'ledger-row--simple'}`}
+        className={`ledger-row ledger-row--${r.status} ${showTracking ? '' : 'ledger-row--simple'} ${isSubRow ? 'ledger-row--sub' : ''}`}
       >
-        <span className="ledger-row__name">{r.name}</span>
+        <span className="ledger-row__name">
+          {isGroceryToggle && (
+            <button
+              type="button"
+              className="ledger-row__toggle"
+              onClick={() => setGroceriesExpanded((v) => !v)}
+              aria-label={groceriesExpanded ? 'Hide grocery breakdown' : 'Show grocery breakdown'}
+            >
+              {groceriesExpanded ? '▾' : '▸'}
+            </button>
+          )}
+          {r.name}
+        </span>
         <span className="ledger-row__bartrack">
           <span className="ledger-row__bar" style={{ width: `${barPct}%` }} />
           {targetPct != null && (
