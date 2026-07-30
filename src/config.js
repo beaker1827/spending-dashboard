@@ -95,7 +95,7 @@ export const CATEGORIES = [
   'Swimming',
   'Netball and Dance',
   'Random other',
-  'Basketball and Trainerroad',
+  'Basketball, Cycling, Trainerroad',
   'Bec nursing rego/union',
   'Additional travel (over and above smile)',
   'Dining out and takeaway',
