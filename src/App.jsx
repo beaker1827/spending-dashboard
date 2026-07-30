@@ -247,6 +247,10 @@ export default function App() {
     const targetPct = r.ytdTarget != null && trackBasis ? Math.min((r.ytdTarget / trackBasis) * 100, 100) : null;
     const varianceOver = showTracking && r.trackingVariance != null && r.trackingVariance > 0;
     const varianceSign = showTracking && r.trackingVariance != null ? (r.trackingVariance > 0 ? '+' : r.trackingVariance < 0 ? '−' : '') : '';
+    const variancePct =
+      showTracking && r.trackingVariance != null && r.target
+        ? Math.round((Math.abs(r.trackingVariance) / r.target) * 100)
+        : null;
     return (
       <div
         key={r.name}
@@ -282,6 +286,7 @@ export default function App() {
           <span className={`ledger-row__amount ${varianceOver ? 'ledger-row__amount--over' : 'ledger-row__amount--under'}`}>
             {varianceSign}
             {money(Math.abs(r.trackingVariance))}
+            {variancePct !== null && <span className="ledger-row__amount-pct"> ({variancePct}%)</span>}
           </span>
         )}
       </div>
