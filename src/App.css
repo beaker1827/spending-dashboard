@@ -144,6 +144,69 @@ html, body { margin: 0; padding: 0; background: var(--bg); }
   margin: 0;
 }
 
+.ledger-list__title-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 14px 20px 0;
+}
+
+.ledger-list__title-row .ledger-list__title { padding: 0; }
+
+.ledger-list__controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ledger-toggle-group {
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.ledger-toggle-group button {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ink-soft);
+  background: var(--panel);
+  border: none;
+  border-right: 1px solid var(--border);
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.ledger-toggle-group button:last-child { border-right: none; }
+
+.ledger-toggle-group button.is-active {
+  background: var(--eucalypt);
+  color: #fff;
+}
+
+.ledger-row__toggle {
+  font-family: var(--font-body);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--ink-soft);
+  padding: 0 4px 0 0;
+  font-size: 11px;
+}
+
+.ledger-row--sub {
+  background: #FAF8F3;
+}
+
+.ledger-row--sub .ledger-row__name {
+  padding-left: 18px;
+  font-weight: 400;
+  color: var(--ink-soft);
+}
+
 .ledger-list__head {
   display: grid;
   grid-template-columns: minmax(140px, 1.1fr) 1.3fr 90px 100px 100px 100px;
