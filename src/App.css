@@ -209,8 +209,8 @@ html, body { margin: 0; padding: 0; background: var(--bg); }
 
 .ledger-list__head {
   display: grid;
-  grid-template-columns: minmax(140px, 1.1fr) 1.3fr 90px 100px 100px 100px;
-  gap: 10px;
+  grid-template-columns: minmax(130px, 1fr) 1.15fr 85px 95px 95px 135px;
+  gap: 8px;
   padding: 12px 20px 10px;
   font-size: 11px;
   text-transform: uppercase;
@@ -242,9 +242,9 @@ html, body { margin: 0; padding: 0; background: var(--bg); }
 .ledger-row {
   width: 100%;
   display: grid;
-  grid-template-columns: minmax(140px, 1.1fr) 1.3fr 90px 100px 100px 100px;
+  grid-template-columns: minmax(130px, 1fr) 1.15fr 85px 95px 95px 135px;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   padding: 10px 20px;
   border: none;
   border-bottom: 1px solid var(--border);
@@ -341,6 +341,12 @@ html, body { margin: 0; padding: 0; background: var(--bg); }
 
 .ledger-row__amount--over { color: var(--gum-red); }
 .ledger-row__amount--under { color: var(--eucalypt); }
+
+.ledger-row__amount-pct {
+  font-weight: 500;
+  font-size: 11px;
+  opacity: 0.85;
+}
 
 .ledger-footer-stats {
   display: grid;
