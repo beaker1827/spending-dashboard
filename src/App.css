@@ -207,6 +207,31 @@ html, body { margin: 0; padding: 0; background: var(--bg); }
   color: var(--ink-soft);
 }
 
+.ledger-month-head {
+  display: grid;
+  grid-template-columns: 90px 120px 120px 120px;
+  gap: 10px;
+  align-items: center;
+  padding: 12px 20px 10px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 500;
+  color: var(--ink-soft);
+  border-bottom: 1px solid var(--border);
+}
+
+.ledger-month-row {
+  display: grid;
+  grid-template-columns: 90px 120px 120px 120px;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.ledger-month-row:last-child { border-bottom: none; }
+
 .ledger-list__head {
   display: grid;
   grid-template-columns: minmax(130px, 1fr) 1.15fr 85px 95px 95px 135px;
