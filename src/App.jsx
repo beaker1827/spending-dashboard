@@ -77,6 +77,14 @@ export default function App() {
   const targetVariance = runRate - OVERALL_ANNUAL_TARGET;
   const isOverTarget = targetVariance > 0;
 
+  const monthlyTotals = useMemo(() => {
+    return MONTHS.map((label, i) => {
+      const expenditure = aggregatable.reduce((s, r) => s + (r.monthly[i] || 0), 0);
+      const incomeVal = income ? income[i] || 0 : 0;
+      return { month: label, income: incomeVal, expenditure, net: incomeVal - expenditure };
+    });
+  }, [aggregatable, income]);
+
   const [sortMode, setSortMode] = useState('sheet');
   const [filterMode, setFilterMode] = useState('all');
   const [groceriesExpanded, setGroceriesExpanded] = useState(false);
@@ -169,6 +177,26 @@ export default function App() {
 
       <section className="ledger-body">
         <div className="ledger-list">
+          <div className="ledger-list__title">Monthly overview</div>
+          <div className="ledger-month-head">
+            <span>Month</span>
+            <span className="ledger-list__head-num">Income</span>
+            <span className="ledger-list__head-num">Expenditure</span>
+            <span className="ledger-list__head-num">Net</span>
+          </div>
+          {monthlyTotals.map((m) => (
+            <div key={m.month} className="ledger-month-row">
+              <span className="ledger-row__name">{m.month}</span>
+              <span className="ledger-row__amount">{money(m.income)}</span>
+              <span className="ledger-row__amount">{money(m.expenditure)}</span>
+              <span className={`ledger-row__amount ${m.net >= 0 ? 'ledger-row__amount--under' : 'ledger-row__amount--over'}`}>
+                {m.net >= 0 ? '+' : '−'}{money(Math.abs(m.net))}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        <div className="ledger-list ledger-list--spaced">
           <div className="ledger-list__title-row">
             <div className="ledger-list__title">Categories with a target</div>
             <div className="ledger-list__controls">
