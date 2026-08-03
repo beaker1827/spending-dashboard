@@ -139,4 +139,191 @@ export default function App() {
     <div className="ledger-page">
       <header className="ledger-masthead">
         <div className="ledger-masthead__title">
-          <span className="ledger-eyebrow">Household
+          <span className="ledger-eyebrow">Household Ledger</span>
+          <h1>FY2026/27 Spending</h1>
+        </div>
+        <div className="ledger-stamp">
+          <div className="ledger-stamp__item ledger-stamp__item--highlight">
+            <span className="ledger-stamp__label">Income to date</span>
+            <span className="ledger-stamp__value">{money(incomeYtd)}</span>
+          </div>
+          <div className="ledger-stamp__item">
+            <span className="ledger-stamp__label">Spent to date</span>
+            <span className="ledger-stamp__value">{money(totalYtd)}</span>
+          </div>
+          <div className="ledger-stamp__item">
+            <span className="ledger-stamp__label">Monthly average</span>
+            <span className="ledger-stamp__value">{money(monthlyAvg)}</span>
+          </div>
+          <div className="ledger-stamp__item">
+            <span className="ledger-stamp__label">Projected annual</span>
+            <span className="ledger-stamp__value">{money(runRate)}</span>
+          </div>
+          <div className="ledger-stamp__item">
+            <span className="ledger-stamp__label">Yearly target spend</span>
+            <span className="ledger-stamp__value">{money(OVERALL_ANNUAL_TARGET)}</span>
+          </div>
+          <div className="ledger-stamp__item">
+            <span className="ledger-stamp__label">Vs. target</span>
+            <span className={`ledger-stamp__value ${isOverTarget ? 'ledger-stamp__value--over' : 'ledger-stamp__value--under'}`}>
+              {money(Math.abs(targetVariance))} {isOverTarget ? 'over' : 'under'}
+            </span>
+          </div>
+        </div>
+        <p className="ledger-caption">
+          {monthsElapsed} of 12 months into the financial year · figures update as you fill in the sheet
+        </p>
+      </header>
+
+      <section className="ledger-body">
+        <div className="ledger-list">
+          <div className="ledger-list__title">Monthly overview</div>
+          <div className="ledger-month-grid">
+            {monthlyTotals.map((m) => (
+              <div key={m.month} className="ledger-month-card">
+                <div className="ledger-month-card__title">{m.month}</div>
+                <div className="ledger-month-card__line">
+                  <span>Income</span>
+                  <strong>{money(m.income)}</strong>
+                </div>
+                <div className="ledger-month-card__line">
+                  <span>Expenditure</span>
+                  <strong>{money(m.expenditure)}</strong>
+                </div>
+                <div className={`ledger-month-card__net ${m.net >= 0 ? 'ledger-month-card__net--under' : 'ledger-month-card__net--over'}`}>
+                  {m.net >= 0 ? '+' : '−'}{money(Math.abs(m.net))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="ledger-list ledger-list--spaced">
+          <div className="ledger-list__title-row">
+            <div className="ledger-list__title">Categories with a target</div>
+            <div className="ledger-list__controls">
+              <div className="ledger-toggle-group">
+                <button className={sortMode === 'sheet' ? 'is-active' : ''} onClick={() => setSortMode('sheet')}>Sheet order</button>
+                <button className={sortMode === 'amount' ? 'is-active' : ''} onClick={() => setSortMode('amount')}>Amount</button>
+                <button className={sortMode === 'status' ? 'is-active' : ''} onClick={() => setSortMode('status')}>Status</button>
+              </div>
+              <div className="ledger-toggle-group">
+                <button className={filterMode === 'all' ? 'is-active' : ''} onClick={() => setFilterMode('all')}>All</button>
+                <button className={filterMode === 'over' ? 'is-active' : ''} onClick={() => setFilterMode('over')}>Over</button>
+                <button className={filterMode === 'under' ? 'is-active' : ''} onClick={() => setFilterMode('under')}>Under</button>
+              </div>
+            </div>
+          </div>
+          <div className="ledger-list__head">
+            <span>Category</span>
+            <span></span>
+            <span className="ledger-list__head-num">Year to date</span>
+            <span className="ledger-list__head-num">Anticipated Costs</span>
+            <span className="ledger-list__head-num">Yearly Tracking</span>
+            <span className="ledger-list__head-num">Vs. Anticipated</span>
+          </div>
+          {targeted.length === 0 && (
+            <p className="ledger-list__empty">No categories have an Annual Target set in column N yet.</p>
+          )}
+          {targeted.length > 0 && targetedMain.length === 0 && (
+            <p className="ledger-list__empty">No categories match this filter.</p>
+          )}
+          {targetedMain.map((r) => (
+            <Fragment key={r.name}>
+              {renderRow(r, targetedMax, true, true, r.name === GROCERY_TOTAL_NAME)}
+              {r.name === GROCERY_TOTAL_NAME && groceriesExpanded &&
+                groceryComponentRows.map((g) => renderRow(g, targetedMax, true, true, false, true))}
+            </Fragment>
+          ))}
+        </div>
+
+        <div className="ledger-list ledger-list--spaced ledger-list--simple">
+          <div className="ledger-list__title">All other categories</div>
+          <div className="ledger-list__head">
+            <span>Category</span>
+            <span className="ledger-list__head-axis">
+              <span>$0</span>
+              <span>{money(untargetedScaleMax)}</span>
+            </span>
+            <span className="ledger-list__head-num">Year to date</span>
+          </div>
+          {untargeted.map((r) => renderRow(r, untargetedScaleMax, false, false))}
+        </div>
+
+        <div className="ledger-legend">
+          <span className="ledger-legend__item"><i className="ledger-legend__swatch ledger-legend__swatch--over" /> over target to date</span>
+          <span className="ledger-legend__item"><i className="ledger-legend__swatch ledger-legend__swatch--under" /> under target to date</span>
+          <span className="ledger-legend__item"><i className="ledger-legend__swatch ledger-legend__swatch--neutral" /> no target set — bar shows relative size vs. your biggest untargeted category</span>
+          <span className="ledger-legend__item">Anticipated Costs = your Annual Target from column N · Yearly Tracking = forecast full-year spend (fixed costs in column P track exactly to Anticipated)</span>
+        </div>
+
+        <div className="ledger-footer-stats">
+          <div className="ledger-stamp__item">
+            <span className="ledger-stamp__label">Tax payments to date</span>
+            <span className="ledger-stamp__value">{money(taxPaymentsYtd)}</span>
+          </div>
+          <div className="ledger-stamp__item ledger-stamp__item--highlight">
+            <span className="ledger-stamp__label">Dividend income to date</span>
+            <span className="ledger-stamp__value">{money(dividendIncomeYtd)}</span>
+          </div>
+        </div>
+        <p className="ledger-caption">Tracked separately — excluded from Spent to date, Projected Annual, and Vs. target above.</p>
+      </section>
+    </div>
+  );
+
+  function renderRow(r, trackBasis, showExpected = true, showTracking = false, isGroceryToggle = false, isSubRow = false) {
+    const barPct = trackBasis ? Math.min((r.ytd / trackBasis) * 100, 100) : 0;
+    const targetPct = r.ytdTarget != null && trackBasis ? Math.min((r.ytdTarget / trackBasis) * 100, 100) : null;
+    const varianceOver = showTracking && r.trackingVariance != null && r.trackingVariance > 0;
+    const varianceSign = showTracking && r.trackingVariance != null ? (r.trackingVariance > 0 ? '+' : r.trackingVariance < 0 ? '−' : '') : '';
+    const variancePct =
+      showTracking && r.trackingVariance != null && r.target
+        ? Math.round((Math.abs(r.trackingVariance) / r.target) * 100)
+        : null;
+    return (
+      <div
+        key={r.name}
+        className={`ledger-row ledger-row--${r.status} ${showTracking ? '' : 'ledger-row--simple'} ${isSubRow ? 'ledger-row--sub' : ''}`}
+      >
+        <span className="ledger-row__name">
+          {isGroceryToggle && (
+            <button
+              type="button"
+              className="ledger-row__toggle"
+              onClick={() => setGroceriesExpanded((v) => !v)}
+              aria-label={groceriesExpanded ? 'Hide grocery breakdown' : 'Show grocery breakdown'}
+            >
+              {groceriesExpanded ? '▾' : '▸'}
+            </button>
+          )}
+          {r.name}
+        </span>
+        <span className="ledger-row__bartrack">
+          <span className="ledger-row__bar" style={{ width: `${barPct}%` }} />
+          {targetPct != null && (
+            <span className="ledger-row__target" style={{ left: `${targetPct}%` }}>
+              <span className="ledger-row__target-tip">
+                Expected to date ({MONTHS[monthsElapsed - 1]}): {money(r.ytdTarget)}
+              </span>
+            </span>
+          )}
+        </span>
+        <span className="ledger-row__amount">{money(r.ytd)}</span>
+        {showExpected && <span className="ledger-row__amount ledger-row__amount--muted">{money(r.yearlyExpected)}</span>}
+        {showTracking && <span className="ledger-row__amount">{money(r.yearlyTracking)}</span>}
+        {showTracking && (
+          <span className={`ledger-row__amount ${varianceOver ? 'ledger-row__amount--over' : 'ledger-row__amount--under'}`}>
+            {varianceSign}
+            {money(Math.abs(r.trackingVariance))}
+            {variancePct !== null && <span className="ledger-row__amount-pct"> ({variancePct}%)</span>}
+          </span>
+        )}
+      </div>
+    );
+  }
+}
+
+function sum(arr) {
+  return arr.reduce((a, b) => a + b, 0);
+}
