@@ -6,6 +6,33 @@ import './App.css';
 const money = (n) =>
   n.toLocaleString('en-AU', { style: 'currency', currency: 'AUD', maximumFractionDigits: 0 });
 
+const CAL_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+function fyStartYearFor(date) {
+  const y = date.getFullYear();
+  return date.getMonth() >= 6 ? y : y - 1;
+}
+
+// Converts an FY month index (0 = Jul ... 11 = Jun) to the last calendar
+// day of that month, e.g. "31 Aug" — used for monthly/lump-sum/quarterly
+// cadences, where the expected-to-date figure represents a whole month.
+function lastDayOfFyMonthLabel(fyIndex, date = new Date()) {
+  const fyStartYear = fyStartYearFor(date);
+  const calYear = fyIndex <= 5 ? fyStartYear : fyStartYear + 1;
+  const calMonth = (fyIndex + 6) % 12;
+  const lastDate = new Date(calYear, calMonth + 1, 0).getDate();
+  return `${lastDate} ${CAL_MONTHS[calMonth]}`;
+}
+
+// The exact calendar date a given number of elapsed weeks reaches from the
+// start of the financial year — used for "Weekly" cadence categories.
+function weeklyAsOfLabel(weeksElapsed, date = new Date()) {
+  const fyStartYear = fyStartYearFor(date);
+  const fyStart = new Date(fyStartYear, 6, 1);
+  const target = new Date(fyStart.getTime() + (weeksElapsed * 7 - 1) * 86400000);
+  return `${target.getDate()} ${CAL_MONTHS[target.getMonth()]}`;
+}
+
 export default function App() {
   const [categories, setCategories] = useState(null);
   const [income, setIncome] = useState(null);
@@ -32,16 +59,22 @@ export default function App() {
     return categories.map((c) => {
       const ytd = sum(c.monthly);
       let ytdTarget = null;
+      let expectedAsOf = null;
       if (c.target != null) {
         if (c.targetMonths && c.targetMonths.length > 0) {
           const instalment = c.target / c.targetMonths.length;
           const currentMonthIndex = monthsElapsed - 1;
-          const elapsedInstalments = c.targetMonths.filter((m) => currentMonthIndex >= m).length;
-          ytdTarget = elapsedInstalments * instalment;
+          const elapsedMonths = c.targetMonths.filter((m) => currentMonthIndex >= m);
+          ytdTarget = elapsedMonths.length * instalment;
+          expectedAsOf = elapsedMonths.length > 0
+            ? lastDayOfFyMonthLabel(elapsedMonths[elapsedMonths.length - 1])
+            : null;
         } else if (c.weeklyCadence) {
           ytdTarget = (c.target / 52) * weeksElapsed;
+          expectedAsOf = weeklyAsOfLabel(weeksElapsed);
         } else {
           ytdTarget = (c.target / 12) * monthsElapsed;
+          expectedAsOf = lastDayOfFyMonthLabel(monthsElapsed - 1);
         }
       }
       const status = ytdTarget == null ? 'neutral' : ytd > ytdTarget ? 'over' : 'under';
@@ -59,7 +92,7 @@ export default function App() {
         trackingVariance = yearlyTracking - c.target;
       }
 
-      return { ...c, ytd, ytdTarget, status, yearlyExpected, yearlyTracking, trackingVariance };
+      return { ...c, ytd, ytdTarget, status, yearlyExpected, yearlyTracking, trackingVariance, expectedAsOf };
     });
   }, [categories, monthsElapsed, weeksElapsed]);
 
@@ -315,7 +348,7 @@ export default function App() {
           {targetPct != null && (
             <span className="ledger-row__target" style={{ left: `${targetPct}%` }}>
               <span className="ledger-row__target-tip">
-                Expected to date ({MONTHS[monthsElapsed - 1]}): {money(r.ytdTarget)}
+                Expected to date ({r.expectedAsOf ?? 'not yet due'}): {money(r.ytdTarget)}
               </span>
             </span>
           )}
