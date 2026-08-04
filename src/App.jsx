@@ -66,7 +66,18 @@ export default function App() {
   const aggregatable = useMemo(() => rows.filter((r) => r.name !== GROCERY_TOTAL_NAME), [rows]);
 
   const totalYtd = useMemo(() => aggregatable.reduce((s, r) => s + r.ytd, 0), [aggregatable]);
-  const monthlyAvg = monthsElapsed ? totalYtd / monthsElapsed : 0;
+  // Monthly average excludes the current, still-in-progress month — including
+  // it would understate the true monthly rate early in a month (e.g. 2 days
+  // into August would otherwise get treated as a "full" month of spend).
+  const completedMonths = Math.max(monthsElapsed - 1, 0);
+  const monthlyAvg = useMemo(() => {
+    if (completedMonths === 0) return totalYtd; // first month: no completed month to average yet
+    const completedExpenditure = aggregatable.reduce(
+      (s, r) => s + r.monthly.slice(0, completedMonths).reduce((a, b) => a + b, 0),
+      0
+    );
+    return completedExpenditure / completedMonths;
+  }, [aggregatable, completedMonths, totalYtd]);
   const runRate = useMemo(
     () => aggregatable.reduce((s, r) => s + (r.target != null ? r.yearlyTracking : r.yearlyExpected), 0),
     [aggregatable]
