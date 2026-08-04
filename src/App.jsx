@@ -101,7 +101,7 @@ export default function App() {
   const [groceriesExpanded, setGroceriesExpanded] = useState(false);
 
   const targeted = rows.filter((r) => r.target != null);
-  const untargeted = rows.filter((r) => r.target == null);
+  const untargeted = rows.filter((r) => r.target == null).sort((a, b) => b.ytd - a.ytd);
   const untargetedScaleMax = 2500;
   const targetedMax = targeted.length ? Math.max(...targeted.map((r) => Math.max(r.ytd, r.ytdTarget))) : 0;
 
