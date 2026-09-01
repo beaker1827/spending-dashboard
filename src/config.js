@@ -60,16 +60,20 @@ export const OVERALL_ANNUAL_TARGET = 170000;
 export const INCOME_ROW_NAME = 'Income';
 
 // Tracked separately from the spending categories, shown as their own boxes
-// rather than in the category tables — and excluded from Projected Annual.
+// rather than in the category tables — and excluded from Spent to date,
+// Projected Annual, Vs. target, and the Monthly overview.
 export const TAX_PAYMENTS_ROW_NAME = 'Tax payments';
 export const DIVIDEND_INCOME_ROW_NAME = 'Dividend Income';
+// Extra loan repayments are discretionary — money that didn't have to be
+// spent — so they're tracked the same way as Tax payments rather than
+// counting against the household's spending totals.
+export const EXTRA_LOAN_REPAYMENTS_ROW_NAME = 'Extra loan repayments';
 
 // The category list, in display order. Must match the text in column A of
 // the sheet exactly. Unknown rows in the sheet are ignored; categories listed
 // here but missing from the sheet simply show as $0.
 export const CATEGORIES = [
   'Mortgage Loan repayment',
-  'Extra loan repayments',
   'RMG loan repayment',
   'Splurge',
   'Smile',
@@ -84,18 +88,18 @@ export const CATEGORIES = [
   'Rafa',
   'School fees',
   'Extra school costs (uniforms etc)',
-  'Internet and phone',
+  'Internet and phone and music',
   'Car insurance',
   'CoGB Rates',
   'Home and contents (bike) insurance',
   'Home maintenance',
   'Pool',
   'Clothing',
-  'Subscriptions (TV, Music, Choice, iCloud etc)',
+  'Subscriptions (TV, Choice, Cloud etc)',
   'Swimming',
   'Netball and Dance',
   'Random other',
-  'Basketball, Cycling, Trainerroad',
+  'Basketball and Trainerroad',
   'Bec nursing rego/union',
   'Additional travel (over and above smile)',
   'Dining out and takeaway',
@@ -106,7 +110,7 @@ export const CATEGORIES = [
   'Personal care & beauty',
   'Studio Daisie',
   'Pets',
-  'Kids sport/activities (other) and iphone, birthdays, gifts, random',
+  'Kids sport/activities (other) and iphone, birthdays, random',
 ];
 
 // Returns how many months of FY2026/27 (Jul->Jun) have elapsed, counting the
