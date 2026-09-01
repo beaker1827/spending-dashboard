@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useMemo, useState } from 'react';
 import { fetchSpendingData } from './sheets';
-import { MONTHS, fyMonthsElapsed, fyWeeksElapsed, OVERALL_ANNUAL_TARGET, GROCERY_TOTAL_NAME, GROCERY_TOTAL_COMPONENTS } from './config';
+import { MONTHS, fyMonthsElapsed, fyWeeksElapsed, fyDaysElapsed, fyTotalDays, OVERALL_ANNUAL_TARGET, GROCERY_TOTAL_NAME, GROCERY_TOTAL_COMPONENTS } from './config';
 import './App.css';
 
 const money = (n) =>
@@ -55,6 +55,7 @@ export default function App() {
 
   const monthsElapsed = fyMonthsElapsed();
   const weeksElapsed = fyWeeksElapsed();
+  const dayFraction = fyDaysElapsed() / fyTotalDays();
 
   const rows = useMemo(() => {
     if (!categories) return [];
@@ -80,7 +81,12 @@ export default function App() {
         }
       }
       const status = ytdTarget == null ? 'neutral' : ytd > ytdTarget ? 'over' : 'under';
-      const yearlyExpected = c.target != null ? c.target : monthsElapsed ? (ytd / monthsElapsed) * 12 : 0;
+      // Yearly Expected / Yearly Tracking are full-year forecasts, distinct
+      // from the cadence-specific "Expected to date" line above. They use a
+      // smooth day-based pro-rata (days elapsed / days in FY) rather than
+      // whole months or weeks, so the forecast doesn't jump sharply the
+      // instant a new month or week begins with barely any of it elapsed.
+      const yearlyExpected = c.target != null ? c.target : dayFraction > 0 ? ytd / dayFraction : 0;
 
       let yearlyTracking = null;
       let trackingVariance = null;
@@ -88,15 +94,14 @@ export default function App() {
         if (c.fixed) {
           yearlyTracking = c.target;
         } else {
-          const elapsedFraction = c.target > 0 ? ytdTarget / c.target : 0;
-          yearlyTracking = elapsedFraction > 0 ? ytd / elapsedFraction : c.target;
+          yearlyTracking = dayFraction > 0 ? ytd / dayFraction : c.target;
         }
         trackingVariance = yearlyTracking - c.target;
       }
 
       return { ...c, ytd, ytdTarget, status, yearlyExpected, yearlyTracking, trackingVariance, expectedAsOf };
     });
-  }, [categories, monthsElapsed, weeksElapsed]);
+  }, [categories, monthsElapsed, weeksElapsed, dayFraction]);
 
   const aggregatable = useMemo(() => rows.filter((r) => r.name !== GROCERY_TOTAL_NAME), [rows]);
 
