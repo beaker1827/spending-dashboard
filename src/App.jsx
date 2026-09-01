@@ -38,15 +38,17 @@ export default function App() {
   const [income, setIncome] = useState(null);
   const [taxPayments, setTaxPayments] = useState(null);
   const [dividendIncome, setDividendIncome] = useState(null);
+  const [extraLoanRepayments, setExtraLoanRepayments] = useState(null);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchSpendingData()
-      .then(({ categories, income, taxPayments, dividendIncome }) => {
+      .then(({ categories, income, taxPayments, dividendIncome, extraLoanRepayments }) => {
         setCategories(categories);
         setIncome(income);
         setTaxPayments(taxPayments);
         setDividendIncome(dividendIncome);
+        setExtraLoanRepayments(extraLoanRepayments);
       })
       .catch((e) => setError(e.message));
   }, []);
@@ -118,6 +120,7 @@ export default function App() {
   const incomeYtd = useMemo(() => (income ? sum(income) : 0), [income]);
   const taxPaymentsYtd = useMemo(() => (taxPayments ? sum(taxPayments) : 0), [taxPayments]);
   const dividendIncomeYtd = useMemo(() => (dividendIncome ? sum(dividendIncome) : 0), [dividendIncome]);
+  const extraLoanRepaymentsYtd = useMemo(() => (extraLoanRepayments ? sum(extraLoanRepayments) : 0), [extraLoanRepayments]);
   const targetVariance = runRate - OVERALL_ANNUAL_TARGET;
   const isOverTarget = targetVariance > 0;
 
@@ -306,12 +309,16 @@ export default function App() {
             <span className="ledger-stamp__label">Tax payments to date</span>
             <span className="ledger-stamp__value">{money(taxPaymentsYtd)}</span>
           </div>
+          <div className="ledger-stamp__item">
+            <span className="ledger-stamp__label">Extra loan repayments to date</span>
+            <span className="ledger-stamp__value">{money(extraLoanRepaymentsYtd)}</span>
+          </div>
           <div className="ledger-stamp__item ledger-stamp__item--highlight">
             <span className="ledger-stamp__label">Dividend income to date</span>
             <span className="ledger-stamp__value">{money(dividendIncomeYtd)}</span>
           </div>
         </div>
-        <p className="ledger-caption">Tracked separately — excluded from Spent to date, Projected Annual, and Vs. target above.</p>
+        <p className="ledger-caption">Tracked separately — discretionary or one-off, and excluded from Spent to date, Projected Annual, and Vs. target above.</p>
       </section>
     </div>
   );
