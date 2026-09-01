@@ -110,7 +110,7 @@ export const CATEGORIES = [
   'Personal care & beauty',
   'Studio Daisie',
   'Pets',
-  'Kids sport/activities (other) and iphone, birthdays, random',
+  'Kids sport/activities (other) and iphone, birthdays, gifts, random',
 ];
 
 // Returns how many months of FY2026/27 (Jul->Jun) have elapsed, counting the
