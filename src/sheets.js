@@ -1,4 +1,4 @@
-import { SHEET_ID, SHEET_TAB, SHEET_RANGE, API_KEY, CATEGORIES, GROCERY_TOTAL_NAME, GROCERY_TOTAL_COMPONENTS, INCOME_ROW_NAME, TAX_PAYMENTS_ROW_NAME, DIVIDEND_INCOME_ROW_NAME, MONTHS } from './config';
+import { SHEET_ID, SHEET_TAB, SHEET_RANGE, API_KEY, CATEGORIES, GROCERY_TOTAL_NAME, GROCERY_TOTAL_COMPONENTS, INCOME_ROW_NAME, TAX_PAYMENTS_ROW_NAME, DIVIDEND_INCOME_ROW_NAME, EXTRA_LOAN_REPAYMENTS_ROW_NAME, MONTHS } from './config';
 
 function parseMoney(cell) {
   if (cell === undefined || cell === null || cell === '') return 0;
@@ -30,6 +30,7 @@ export async function fetchSpendingData() {
   let incomeMonthly = new Array(MONTHS.length).fill(0);
   let taxPaymentsMonthly = new Array(MONTHS.length).fill(0);
   let dividendIncomeMonthly = new Array(MONTHS.length).fill(0);
+  let extraLoanRepaymentsMonthly = new Array(MONTHS.length).fill(0);
 
   for (const row of rows) {
     const label = (row[0] || '').toString().trim();
@@ -45,6 +46,10 @@ export async function fetchSpendingData() {
     }
     if (label === DIVIDEND_INCOME_ROW_NAME) {
       dividendIncomeMonthly = MONTHS.map((_, i) => parseMoney(row[1 + i]));
+      continue;
+    }
+    if (label === EXTRA_LOAN_REPAYMENTS_ROW_NAME) {
+      extraLoanRepaymentsMonthly = MONTHS.map((_, i) => parseMoney(row[1 + i]));
       continue;
     }
 
@@ -85,5 +90,6 @@ export async function fetchSpendingData() {
     income: incomeMonthly,
     taxPayments: taxPaymentsMonthly,
     dividendIncome: dividendIncomeMonthly,
+    extraLoanRepayments: extraLoanRepaymentsMonthly,
   };
 }
