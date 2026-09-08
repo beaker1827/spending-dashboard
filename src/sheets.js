@@ -6,6 +6,16 @@ function parseMoney(cell) {
   return Number.isFinite(n) ? Math.abs(n) : 0;
 }
 
+// Unlike parseMoney, this keeps the sign — used for rows where negative and
+// positive values mean genuinely different things and need to net against
+// each other (e.g. extra loan repayments vs money brought back out of the
+// offset), rather than both being treated as positive spend amounts.
+function parseSignedMoney(cell) {
+  if (cell === undefined || cell === null || cell === '') return 0;
+  const n = Number(String(cell).replace(/[$,]/g, ''));
+  return Number.isFinite(n) ? n : 0;
+}
+
 export async function fetchSpendingData() {
   if (!API_KEY) {
     throw new Error('Missing VITE_GOOGLE_SHEETS_API_KEY environment variable.');
@@ -49,7 +59,7 @@ export async function fetchSpendingData() {
       continue;
     }
     if (label === EXTRA_LOAN_REPAYMENTS_ROW_NAME) {
-      extraLoanRepaymentsMonthly = MONTHS.map((_, i) => parseMoney(row[1 + i]));
+      extraLoanRepaymentsMonthly = MONTHS.map((_, i) => parseSignedMoney(row[1 + i]));
       continue;
     }
 
