@@ -125,7 +125,10 @@ export default function App() {
   const incomeYtd = useMemo(() => (income ? sum(income) : 0), [income]);
   const taxPaymentsYtd = useMemo(() => (taxPayments ? sum(taxPayments) : 0), [taxPayments]);
   const dividendIncomeYtd = useMemo(() => (dividendIncome ? sum(dividendIncome) : 0), [dividendIncome]);
-  const extraLoanRepaymentsYtd = useMemo(() => (extraLoanRepayments ? sum(extraLoanRepayments) : 0), [extraLoanRepayments]);
+  const extraLoanRepaymentsYtd = useMemo(
+    () => (extraLoanRepayments ? Math.abs(sum(extraLoanRepayments)) : 0),
+    [extraLoanRepayments]
+  );
   const targetVariance = runRate - OVERALL_ANNUAL_TARGET;
   const isOverTarget = targetVariance > 0;
 
