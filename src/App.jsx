@@ -91,14 +91,27 @@ export default function App() {
       let yearlyTracking = null;
       let trackingVariance = null;
       if (c.target != null) {
-                if (c.fixed) {
-          // A fixed cost is a known, one-off annual charge (car insurance,
-          // etc) — nothing more is expected once it's paid. Before it's
-          // paid (ytd is $0), the best guess is still the Anticipated
-          // figure from column N. Once it's paid, the actual amount IS the
-          // year's cost, even if it came in higher or lower than planned —
-          // Anticipated Costs itself is untouched, so the gap still shows.
-          yearlyTracking = ytd > 0 ? ytd : c.target;
+        if (c.targetMonths && c.targetMonths.length > 0) {
+          // Lump-sum or instalment category (e.g. a one-off annual payment,
+          // or quarterly rates): each due instalment's ACTUAL cost is known
+          // once it's paid — there's nothing more coming for that
+          // instalment. Instalments not yet due are estimated at their
+          // even share of the target. For a single annual payment, once
+          // it's paid this collapses to exactly the actual amount.
+          const instalmentCount = c.targetMonths.length;
+          const instalmentAmount = c.target / instalmentCount;
+          const currentMonthIndex = monthsElapsed - 1;
+          const elapsedCount = c.targetMonths.filter((m) => currentMonthIndex >= m).length;
+          const remainingCount = instalmentCount - elapsedCount;
+          yearlyTracking = ytd + remainingCount * instalmentAmount;
+        } else if (c.fixed) {
+          // A fixed cost recurs at a known, unchanging rate throughout the
+          // year (mortgage, regular transfers, etc) — Yearly Tracking
+          // stays equal to Anticipated Costs unless the actual pace is
+          // genuinely running ahead of it (e.g. extra payments), in which
+          // case the higher, pace-based figure is shown instead.
+          const paceExtrapolated = dayFraction > 0 ? ytd / dayFraction : 0;
+          yearlyTracking = Math.max(c.target, paceExtrapolated);
         } else {
           yearlyTracking = dayFraction > 0 ? ytd / dayFraction : c.target;
         }
