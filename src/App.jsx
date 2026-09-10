@@ -91,8 +91,14 @@ export default function App() {
       let yearlyTracking = null;
       let trackingVariance = null;
       if (c.target != null) {
-        if (c.fixed) {
-          yearlyTracking = c.target;
+                if (c.fixed) {
+          // A fixed cost is a known, one-off annual charge (car insurance,
+          // etc) — nothing more is expected once it's paid. Before it's
+          // paid (ytd is $0), the best guess is still the Anticipated
+          // figure from column N. Once it's paid, the actual amount IS the
+          // year's cost, even if it came in higher or lower than planned —
+          // Anticipated Costs itself is untouched, so the gap still shows.
+          yearlyTracking = ytd > 0 ? ytd : c.target;
         } else {
           yearlyTracking = dayFraction > 0 ? ytd / dayFraction : c.target;
         }
