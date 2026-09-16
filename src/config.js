@@ -13,8 +13,7 @@ export const API_KEY = import.meta.env.VITE_GOOGLE_SHEETS_API_KEY || '';
 // tab doesn't exist yet, the dashboard still works fine — the breakdown just
 // won't appear.
 export const TRANSACTIONS_TAB = import.meta.env.VITE_TRANSACTIONS_TAB || 'Transactions';
-export const TRANSACTIONS_RANGE = `A2:D5000`;
-
+export const TRANSACTIONS_RANGE = `A2:E5000`;
 // Range covers category names (A), 12 months Jul-Jun (B:M), an optional
 // "Annual Target" column (N), an optional "Target Month(s) / Cadence"
 // column (O), and an optional "Fixed Cost" column (P).
