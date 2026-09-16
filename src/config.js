@@ -5,7 +5,7 @@ export const SHEET_ID = import.meta.env.VITE_SHEET_ID || '14ITWuWHTl99kE0QlehSu4
 export const SHEET_TAB = import.meta.env.VITE_SHEET_TAB || '2026/27 spending';
 export const API_KEY = import.meta.env.VITE_GOOGLE_SHEETS_API_KEY || '';
 
----- Transactions tab (optional) ----
+// ---- Transactions tab (optional) ----
 // A single continuous list of every transaction for the year, with a header
 // row in row 1 and these five columns:
 //   A: Category   B: Date   C: Description   D: Credit   E: Debit
@@ -18,6 +18,7 @@ export const API_KEY = import.meta.env.VITE_GOOGLE_SHEETS_API_KEY || '';
 // won't appear.
 export const TRANSACTIONS_TAB = import.meta.env.VITE_TRANSACTIONS_TAB || 'Transactions';
 export const TRANSACTIONS_RANGE = `A2:E5000`;
+
 // Range covers category names (A), 12 months Jul-Jun (B:M), an optional
 // "Annual Target" column (N), an optional "Target Month(s) / Cadence"
 // column (O), and an optional "Fixed Cost" column (P).
