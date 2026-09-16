@@ -1,4 +1,4 @@
-import { SHEET_ID, SHEET_TAB, SHEET_RANGE, API_KEY, CATEGORIES, GROCERY_TOTAL_NAME, GROCERY_TOTAL_COMPONENTS, INCOME_ROW_NAME, TAX_PAYMENTS_ROW_NAME, DIVIDEND_INCOME_ROW_NAME, EXTRA_LOAN_REPAYMENTS_ROW_NAME, MONTHS } from './config';
+import { SHEET_ID, SHEET_TAB, SHEET_RANGE, TRANSACTIONS_TAB, TRANSACTIONS_RANGE, API_KEY, CATEGORIES, GROCERY_TOTAL_NAME, GROCERY_TOTAL_COMPONENTS, INCOME_ROW_NAME, TAX_PAYMENTS_ROW_NAME, DIVIDEND_INCOME_ROW_NAME, EXTRA_LOAN_REPAYMENTS_ROW_NAME, MONTHS } from './config';
 
 function parseMoney(cell) {
   if (cell === undefined || cell === null || cell === '') return 0;
@@ -16,14 +16,55 @@ function parseSignedMoney(cell) {
   return Number.isFinite(n) ? n : 0;
 }
 
+function sheetUrl(tab, range) {
+  const encoded = encodeURIComponent(`'${tab}'!${range}`);
+  return `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encoded}?key=${API_KEY}`;
+}
+
+// Fetches the optional Transactions tab and groups rows by category.
+// Returns {} if the tab doesn't exist or can't be read — the dashboard
+// treats a missing transaction list as "no breakdown available" rather
+// than an error, so the summary tab alone is still enough to run on.
+async function fetchTransactions() {
+  try {
+    const res = await fetch(sheetUrl(TRANSACTIONS_TAB, TRANSACTIONS_RANGE));
+    if (!res.ok) return {};
+    const json = await res.json();
+    const rows = json.values || [];
+
+    const byCategory = {};
+    for (const row of rows) {
+      const date = (row[0] || '').toString().trim();
+      const description = (row[1] || '').toString().trim();
+      const category = (row[2] || '').toString().trim();
+      const amountCell = row[3];
+      if (!category) continue;
+      if (!date && !description && (amountCell === undefined || amountCell === '')) continue;
+
+      if (!byCategory[category]) byCategory[category] = [];
+      byCategory[category].push({
+        date,
+        description,
+        amount: parseMoney(amountCell),
+        signedAmount: parseSignedMoney(amountCell),
+      });
+    }
+    return byCategory;
+  } catch {
+    return {};
+  }
+}
+
 export async function fetchSpendingData() {
   if (!API_KEY) {
     throw new Error('Missing VITE_GOOGLE_SHEETS_API_KEY environment variable.');
   }
-  const range = encodeURIComponent(`'${SHEET_TAB}'!${SHEET_RANGE}`);
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}?key=${API_KEY}`;
 
-  const res = await fetch(url);
+  const [res, transactionsByCategory] = await Promise.all([
+    fetch(sheetUrl(SHEET_TAB, SHEET_RANGE)),
+    fetchTransactions(),
+  ]);
+
   if (!res.ok) {
     const body = await res.text();
     throw new Error(`Sheets API error (${res.status}): ${body}`);
@@ -101,5 +142,6 @@ export async function fetchSpendingData() {
     taxPayments: taxPaymentsMonthly,
     dividendIncome: dividendIncomeMonthly,
     extraLoanRepayments: extraLoanRepaymentsMonthly,
+    transactionsByCategory,
   };
 }
