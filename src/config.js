@@ -5,10 +5,14 @@ export const SHEET_ID = import.meta.env.VITE_SHEET_ID || '14ITWuWHTl99kE0QlehSu4
 export const SHEET_TAB = import.meta.env.VITE_SHEET_TAB || '2026/27 spending';
 export const API_KEY = import.meta.env.VITE_GOOGLE_SHEETS_API_KEY || '';
 
-// ---- Transactions tab (optional) ----
+---- Transactions tab (optional) ----
 // A single continuous list of every transaction for the year, with a header
-// row in row 1 and these four columns:
-//   A: Date   B: Description   C: Category   D: Amount
+// row in row 1 and these five columns:
+//   A: Category   B: Date   C: Description   D: Credit   E: Debit
+// Category comes from your category_rules formula; Date/Description/Credit/
+// Debit are pasted straight in from your banking app. The actual spend for
+// each row is Debit minus Credit, so a refund or credit correctly reduces
+// that category's total rather than needing separate handling.
 // Used to show a per-category transaction breakdown on the dashboard. If the
 // tab doesn't exist yet, the dashboard still works fine — the breakdown just
 // won't appear.
