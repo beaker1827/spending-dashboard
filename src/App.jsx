@@ -6,6 +6,9 @@ import './App.css';
 const money = (n) =>
   n.toLocaleString('en-AU', { style: 'currency', currency: 'AUD', maximumFractionDigits: 0 });
 
+const moneyExact = (n) =>
+  n.toLocaleString('en-AU', { style: 'currency', currency: 'AUD', minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
 const CAL_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 function fyStartYearFor(date) {
@@ -39,16 +42,18 @@ export default function App() {
   const [taxPayments, setTaxPayments] = useState(null);
   const [dividendIncome, setDividendIncome] = useState(null);
   const [extraLoanRepayments, setExtraLoanRepayments] = useState(null);
+  const [transactionsByCategory, setTransactionsByCategory] = useState({});
   const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchSpendingData()
-      .then(({ categories, income, taxPayments, dividendIncome, extraLoanRepayments }) => {
+      .then(({ categories, income, taxPayments, dividendIncome, extraLoanRepayments, transactionsByCategory }) => {
         setCategories(categories);
         setIncome(income);
         setTaxPayments(taxPayments);
         setDividendIncome(dividendIncome);
         setExtraLoanRepayments(extraLoanRepayments);
+        setTransactionsByCategory(transactionsByCategory || {});
       })
       .catch((e) => setError(e.message));
   }, []);
@@ -162,6 +167,11 @@ export default function App() {
   const [sortMode, setSortMode] = useState('sheet');
   const [filterMode, setFilterMode] = useState('all');
   const [groceriesExpanded, setGroceriesExpanded] = useState(false);
+  // Which untargeted categories currently have their transaction list open.
+  const [expandedCategories, setExpandedCategories] = useState({});
+
+  const toggleCategory = (name) =>
+    setExpandedCategories((prev) => ({ ...prev, [name]: !prev[name] }));
 
   const targeted = rows.filter((r) => r.target != null);
   const untargeted = rows.filter((r) => r.target == null).sort((a, b) => b.ytd - a.ytd);
@@ -321,14 +331,38 @@ export default function App() {
             </span>
             <span className="ledger-list__head-num">Year to date</span>
           </div>
-          {untargeted.map((r) => renderRow(r, untargetedScaleMax, false, false))}
+          {untargeted.map((r) => {
+            const txns = transactionsByCategory[r.name] || [];
+            const isOpen = !!expandedCategories[r.name];
+            return (
+              <Fragment key={r.name}>
+                {renderRow(r, untargetedScaleMax, false, false, false, false, txns.length > 0)}
+                {isOpen && txns.length > 0 && (
+                  <div className="ledger-txns">
+                    {txns.map((t, i) => (
+                      <div key={`${r.name}-${i}`} className="ledger-txn">
+                        <span className="ledger-txn__date">{t.date}</span>
+                        <span className="ledger-txn__desc" title={t.description}>{t.description}</span>
+                        <span className="ledger-txn__amount">{moneyExact(t.amount)}</span>
+                      </div>
+                    ))}
+                    <div className="ledger-txn ledger-txn--total">
+                      <span className="ledger-txn__date"></span>
+                      <span className="ledger-txn__desc">{txns.length} transaction{txns.length === 1 ? '' : 's'}</span>
+                      <span className="ledger-txn__amount">{moneyExact(txns.reduce((s, t) => s + t.amount, 0))}</span>
+                    </div>
+                  </div>
+                )}
+              </Fragment>
+            );
+          })}
         </div>
 
         <div className="ledger-legend">
           <span className="ledger-legend__item"><i className="ledger-legend__swatch ledger-legend__swatch--over" /> over target to date</span>
           <span className="ledger-legend__item"><i className="ledger-legend__swatch ledger-legend__swatch--under" /> under target to date</span>
           <span className="ledger-legend__item"><i className="ledger-legend__swatch ledger-legend__swatch--neutral" /> no target set — bar shows relative size vs. your biggest untargeted category</span>
-          <span className="ledger-legend__item">Anticipated Costs = your Annual Target from column N · Yearly Tracking = forecast full-year spend (fixed costs in column P track exactly to Anticipated)</span>
+          <span className="ledger-legend__item">Anticipated Costs = your Annual Target from column N · Yearly Tracking = forecast full-year spend</span>
         </div>
 
         <div className="ledger-footer-stats">
@@ -350,7 +384,7 @@ export default function App() {
     </div>
   );
 
-  function renderRow(r, trackBasis, showExpected = true, showTracking = false, isGroceryToggle = false, isSubRow = false) {
+  function renderRow(r, trackBasis, showExpected = true, showTracking = false, isGroceryToggle = false, isSubRow = false, hasTxns = false) {
     const barPct = trackBasis ? Math.min((r.ytd / trackBasis) * 100, 100) : 0;
     const targetPct = r.ytdTarget != null && trackBasis ? Math.min((r.ytdTarget / trackBasis) * 100, 100) : null;
     const varianceOver = showTracking && r.trackingVariance != null && r.trackingVariance > 0;
@@ -359,6 +393,7 @@ export default function App() {
       showTracking && r.trackingVariance != null && r.target
         ? Math.round((Math.abs(r.trackingVariance) / r.target) * 100)
         : null;
+    const isOpen = !!expandedCategories[r.name];
     return (
       <div
         key={r.name}
@@ -373,6 +408,16 @@ export default function App() {
               aria-label={groceriesExpanded ? 'Hide grocery breakdown' : 'Show grocery breakdown'}
             >
               {groceriesExpanded ? '▾' : '▸'}
+            </button>
+          )}
+          {hasTxns && (
+            <button
+              type="button"
+              className="ledger-row__toggle"
+              onClick={() => toggleCategory(r.name)}
+              aria-label={isOpen ? `Hide ${r.name} transactions` : `Show ${r.name} transactions`}
+            >
+              {isOpen ? '▾' : '▸'}
             </button>
           )}
           {r.name}
