@@ -101,7 +101,7 @@ export const CATEGORIES = [
   'Rafa',
   'School fees',
   'Extra school costs (uniforms etc)',
-  'Internet and phone and music',
+  'Internet and phone',
   'Car insurance',
   'CoGB Rates',
   'Home and contents (bike) insurance',
