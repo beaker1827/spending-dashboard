@@ -5,6 +5,16 @@ export const SHEET_ID = import.meta.env.VITE_SHEET_ID || '14ITWuWHTl99kE0QlehSu4
 export const SHEET_TAB = import.meta.env.VITE_SHEET_TAB || '2026/27 spending';
 export const API_KEY = import.meta.env.VITE_GOOGLE_SHEETS_API_KEY || '';
 
+// ---- Transactions tab (optional) ----
+// A single continuous list of every transaction for the year, with a header
+// row in row 1 and these four columns:
+//   A: Date   B: Description   C: Category   D: Amount
+// Used to show a per-category transaction breakdown on the dashboard. If the
+// tab doesn't exist yet, the dashboard still works fine — the breakdown just
+// won't appear.
+export const TRANSACTIONS_TAB = import.meta.env.VITE_TRANSACTIONS_TAB || 'Transactions';
+export const TRANSACTIONS_RANGE = `A2:D5000`;
+
 // Range covers category names (A), 12 months Jul-Jun (B:M), an optional
 // "Annual Target" column (N), an optional "Target Month(s) / Cadence"
 // column (O), and an optional "Fixed Cost" column (P).
@@ -26,11 +36,10 @@ export const API_KEY = import.meta.env.VITE_GOOGLE_SHEETS_API_KEY || '';
 // council rates) — the annual target splits evenly across however many
 // months you list, and the expected-to-date line steps up by one instalment
 // each time one of those months arrives.
-// Put ANYTHING in P (e.g. "Yes") for a category whose annual cost is fixed
-// and already known — its Yearly Tracking forecast will simply equal its
-// Anticipated Costs, rather than being extrapolated from spend-so-far.
-// Leave P blank for anything variable, where the forecast should follow
-// actual spending.
+// Put ANYTHING in P (e.g. "Yes") for a category whose annual cost recurs at
+// a known, unchanging rate (mortgage, regular transfers) — its Yearly
+// Tracking stays equal to Anticipated Costs unless actual spending is
+// genuinely running ahead of that. Leave P blank for anything variable.
 export const SHEET_RANGE = `A1:P80`;
 
 // Financial year months, in sheet column order.
@@ -88,18 +97,18 @@ export const CATEGORIES = [
   'Rafa',
   'School fees',
   'Extra school costs (uniforms etc)',
-  'Internet and phone',
+  'Internet and phone and music',
   'Car insurance',
   'CoGB Rates',
   'Home and contents (bike) insurance',
   'Home maintenance',
   'Pool',
   'Clothing',
-    'Subscriptions (TV, Music, Choice, iCloud etc)',
+  'Subscriptions (TV, Music, Choice, iCloud etc)',
   'Swimming',
   'Netball and Dance',
   'Random other',
-    'Basketball, Cycling, Trainerroad',
+  'Basketball, Cycling, Trainerroad',
   'Bec nursing rego/union',
   'Additional travel (over and above smile)',
   'Dining out and takeaway',
@@ -110,7 +119,7 @@ export const CATEGORIES = [
   'Personal care & beauty',
   'Studio Daisie',
   'Pets',
-  'Kids sport/activities (other) and iphone, birthdays, gifts, random',
+  'Kids sport/activities (other) and iphone, birthdays, random',
 ];
 
 // Returns how many months of FY2026/27 (Jul->Jun) have elapsed, counting the
