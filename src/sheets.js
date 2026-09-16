@@ -32,22 +32,22 @@ async function fetchTransactions() {
     const json = await res.json();
     const rows = json.values || [];
 
-    const byCategory = {};
+        const byCategory = {};
     for (const row of rows) {
-      const date = (row[0] || '').toString().trim();
-      const description = (row[1] || '').toString().trim();
-      const category = (row[2] || '').toString().trim();
-      const amountCell = row[3];
+      const category = (row[0] || '').toString().trim();
+      const date = (row[1] || '').toString().trim();
+      const description = (row[2] || '').toString().trim();
+      const credit = parseMoney(row[3]);
+      const debit = parseMoney(row[4]);
       if (!category) continue;
-      if (!date && !description && (amountCell === undefined || amountCell === '')) continue;
+      if (!date && !description && credit === 0 && debit === 0) continue;
+
+      // Net effect on spend: a debit adds to the category total, a credit
+      // (refund, money brought back, etc) reduces it.
+      const amount = debit - credit;
 
       if (!byCategory[category]) byCategory[category] = [];
-      byCategory[category].push({
-        date,
-        description,
-        amount: parseMoney(amountCell),
-        signedAmount: parseSignedMoney(amountCell),
-      });
+      byCategory[category].push({ date, description, amount });
     }
     return byCategory;
   } catch {
