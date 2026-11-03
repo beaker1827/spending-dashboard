@@ -175,6 +175,7 @@ export default function App() {
 
   const targeted = rows.filter((r) => r.target != null);
   const untargeted = rows.filter((r) => r.target == null).sort((a, b) => b.ytd - a.ytd);
+  const untargetedTotal = untargeted.reduce((s, r) => s + r.ytd, 0);
   const untargetedScaleMax = 2500;
   const targetedMax = targeted.length ? Math.max(...targeted.map((r) => Math.max(r.ytd, r.ytdTarget))) : 0;
 
@@ -355,7 +356,12 @@ export default function App() {
                 )}
               </Fragment>
             );
-          })}
+                    })}
+          <div className="ledger-row ledger-row--simple ledger-row--total">
+            <span className="ledger-row__name">Total — all other categories</span>
+            <span></span>
+            <span className="ledger-row__amount">{money(untargetedTotal)}</span>
+          </div>
         </div>
 
         <div className="ledger-legend">
